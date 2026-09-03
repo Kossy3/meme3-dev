@@ -1,0 +1,134 @@
+{
+  "ver": "1.0.27",
+  "importer": "image",
+  "imported": true,
+  "uuid": "60acaa10-7353-4c07-8cfd-ce89a9483ab7",
+  "files": [
+    ".json",
+    ".png"
+  ],
+  "subMetas": {
+    "6c48a": {
+      "importer": "texture",
+      "uuid": "60acaa10-7353-4c07-8cfd-ce89a9483ab7@6c48a",
+      "displayName": "line_saku_wood",
+      "id": "6c48a",
+      "name": "texture",
+      "userData": {
+        "wrapModeS": "clamp-to-edge",
+        "wrapModeT": "clamp-to-edge",
+        "imageUuidOrDatabaseUri": "60acaa10-7353-4c07-8cfd-ce89a9483ab7",
+        "isUuid": true,
+        "visible": false,
+        "minfilter": "linear",
+        "magfilter": "linear",
+        "mipfilter": "none",
+        "anisotropy": 0
+      },
+      "ver": "1.0.22",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    },
+    "f9941": {
+      "importer": "sprite-frame",
+      "uuid": "60acaa10-7353-4c07-8cfd-ce89a9483ab7@f9941",
+      "displayName": "line_saku_wood",
+      "id": "f9941",
+      "name": "spriteFrame",
+      "userData": {
+        "trimThreshold": 1,
+        "rotated": false,
+        "offsetX": -0.5,
+        "offsetY": 0,
+        "trimX": 1,
+        "trimY": 5,
+        "width": 597,
+        "height": 26,
+        "rawWidth": 600,
+        "rawHeight": 36,
+        "borderTop": 0,
+        "borderBottom": 0,
+        "borderLeft": 0,
+        "borderRight": 0,
+        "packable": true,
+        "pixelsToUnit": 100,
+        "pivotX": 0.5,
+        "pivotY": 0.5,
+        "meshType": 0,
+        "vertices": {
+          "rawPosition": [
+            -298.5,
+            -13,
+            0,
+            298.5,
+            -13,
+            0,
+            -298.5,
+            13,
+            0,
+            298.5,
+            13,
+            0
+          ],
+          "indexes": [
+            0,
+            1,
+            2,
+            2,
+            1,
+            3
+          ],
+          "uv": [
+            1,
+            31,
+            598,
+            31,
+            1,
+            5,
+            598,
+            5
+          ],
+          "nuv": [
+            0.0016666666666666668,
+            0.1388888888888889,
+            0.9966666666666667,
+            0.1388888888888889,
+            0.0016666666666666668,
+            0.8611111111111112,
+            0.9966666666666667,
+            0.8611111111111112
+          ],
+          "minPos": [
+            -298.5,
+            -13,
+            0
+          ],
+          "maxPos": [
+            298.5,
+            13,
+            0
+          ]
+        },
+        "isUuid": true,
+        "imageUuidOrDatabaseUri": "60acaa10-7353-4c07-8cfd-ce89a9483ab7@6c48a",
+        "atlasUuid": "",
+        "trimType": "auto"
+      },
+      "ver": "1.0.12",
+      "imported": true,
+      "files": [
+        ".json"
+      ],
+      "subMetas": {}
+    }
+  },
+  "userData": {
+    "type": "sprite-frame",
+    "fixAlphaTransparencyArtifacts": false,
+    "hasAlpha": true,
+    "redirect": "60acaa10-7353-4c07-8cfd-ce89a9483ab7@6c48a"
+  }
+}
