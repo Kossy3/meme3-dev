@@ -110,6 +110,10 @@ export class Manager {
         return this.__data.memes.filter(m => m.state !== MemeState.DEATH && m.state !== MemeState.LEAVE).length;
     }
 
+    public static get memes(): MemeData[] {
+        return this.__data.memes;
+    }
+
     private static __resetPriority() {
         this.__data.memes.map(m => m.resetPriority());
     }
