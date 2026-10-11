@@ -21,8 +21,8 @@ export class MemeButton extends Component {
 
     onClick() {
         log('えさをさがす');
-        const workers = Manager.workersCount;
-        Manager.addFood(workers);
+        Manager.addFood();
+        Manager.nextDay();
     }
 
     update(deltaTime: number) {

@@ -1,5 +1,6 @@
 import { _decorator, Component, sys, resources, instantiate, Prefab } from 'cc';
-const { ccclass, property } = _decorator;
+const { ccclass } = _decorator;
+
 import { Manager } from './Manager';
 import { Meme } from './Meme';
 
@@ -7,24 +8,31 @@ import { Meme } from './Meme';
 export class Load extends Component {
     start() {
         const gameData = sys.localStorage.getItem('gameData');
+
         if (gameData) {
             Manager.load(gameData);
         }
-        resources.load("prefab/meme6.prefab", Prefab);
-        const prefabs = resources.get("prefab/meme6.prefab", Prefab);
-        console.log(prefabs)
-        Manager.memes.forEach((m, i) => {
-            const child = instantiate(prefabs);
-            this.node.addChild(child);
-            const meme = child.getComponent(Meme);
-            meme.load(m);
-            meme.spawn();
+
+        resources.load('prefab/meme6', Prefab, (err, prefab) => {
+            if (err) {
+                console.error('Prefabの読み込みに失敗:', err);
+                return;
+            }
+
+            Manager.memes.forEach((m) => {
+                const child = instantiate(prefab);
+                this.node.addChild(child);
+
+                const meme = child.getComponent(Meme);
+                if (!meme) {
+                    console.error('Memeコンポーネントがありません');
+                    return;
+                }
+
+                meme.load(m);
+                meme.spawn();
+                
+            });
         });
-
-    }
-
-    update(deltaTime: number) {
     }
 }
-
-

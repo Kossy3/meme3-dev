@@ -1,7 +1,8 @@
 import { _decorator, Component, Node } from 'cc';
 const { ccclass, property } = _decorator;
-import { MemeData, MemeState } from './Manager';
 import { Manager } from './Manager';
+import { MemeData } from './logic/MemeData';
+import { MemeState } from './logic/MemeState';
 
 @ccclass('Meme')
 export class Meme extends Component {
@@ -11,8 +12,8 @@ export class Meme extends Component {
         const position = this.node.position;
         // 楕円の内側にランダムに配置する
         const angle = Math.random() * Math.PI * 2;
-        const radiusX = 800;
-        const radiusY = 400;
+        const radiusX = 500;
+        const radiusY = 250;
         const x = position.x + Math.cos(angle) * radiusX;
         const y = position.y + Math.sin(angle) * radiusY;
         this.node.setPosition(x, y);

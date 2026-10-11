@@ -1,85 +1,8 @@
 import { _decorator, Component, sys } from 'cc';
 const { ccclass, property } = _decorator;
-
-const MAX_HUNGER = 3;
-const WORKER_GROWTH = 5;
-
-export enum MemeState {
-    WORKER, // 労働可能
-    SCRAPIE, // 感染中
-    BUILDING, // 施設建設中
-    FESTIVAL, // 繁殖中
-    LEAVE, // 脱走
-    DEATH, // 死亡
-}
-
-export class MemeData {
-    growth: number = 0;
-    hunger: number = MAX_HUNGER;
-    state: MemeState = MemeState.WORKER;
-    private __priority: number = Math.random();
-    get priority() {
-        return this.__priority;
-    }
-    json() {
-        return {
-            growth: this.growth,
-            hunger: this.hunger,
-            state: this.state
-        }
-    }
-    load(json: any) {
-        this.growth = json.growth;
-        this.hunger = json.hunger;
-        this.state = json.state;
-    }
-    resetPriority() {
-        this.__priority = Math.random();
-    }
-
-    isWorker() {
-        return this.state === MemeState.WORKER;
-    }
-
-    init() {
-        this.growth = WORKER_GROWTH;
-        this.state = MemeState.WORKER;
-    }
-}
-
-export class GameData {
-    day: number = 0;
-    food: number = 0;
-    rottenFood: number = 0;
-    memes: MemeData[] = [
-        new MemeData(),
-        new MemeData(),
-        new MemeData(),
-    ];
-    cult: number = 10;
-    steps: number = 0;
-
-    json(): string {
-        return JSON.stringify({
-            day: this.day,
-            food: this.food,
-            rottenFood: this.rottenFood,
-            memes: this.memes.filter(m => m.state !== MemeState.DEATH && m.state !== MemeState.LEAVE).map(m => m.json()),
-            cult: this.cult,
-            steps: this.steps
-        });
-    }
-
-    load(json: string) {
-        const data = JSON.parse(json);
-        this.day = data.day;
-        this.food = data.food;
-        this.rottenFood = data.rottenFood;
-        this.memes = data.memes.map(m => new MemeData().load(m));
-        this.cult = data.cult;
-        this.steps = data.steps;
-    }
-}
+import { GameData } from './logic/GameData';
+import { MemeData , MAX_HUNGER} from './logic/MemeData';
+import { MemeState } from './logic/MemeState';
 
 export class Manager {
     private static __data: GameData = new GameData();
@@ -94,8 +17,14 @@ export class Manager {
         return this.__data.food;
     }
 
-    public static addFood(amount: number) {
-        this.__data.food += amount;
+    public static addFood() {
+        const memeCount = this.memesCount;
+        const workP = Math.sqrt(this.__data.cult*10)/memeCount;
+        for (let i = 0; i < this.workersCount; i++) {
+            if (Math.random() < workP) {
+                this.__data.food += 2;
+            }
+        }
     }
 
     public static addRottenFood(amount: number) {
@@ -156,7 +85,10 @@ export class Manager {
     private static __checkLeave() {
         const memeCount = this.memesCount;
         const notLeaveP = Math.sqrt(this.__data.cult*10)/memeCount;
-        for (let meme of this.__data.memes) {
+        for (let meme of this.__data.memes.filter(m => 
+            m.state == MemeState.WORKER 
+            || m.state == MemeState.BUILDING
+        )) {
             const leave = Math.random() > notLeaveP;
             if (leave) {
                 meme.state = MemeState.LEAVE;
