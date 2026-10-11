@@ -1,0 +1,32 @@
+import { _decorator, Component, Node, Button, log } from 'cc';
+const { ccclass, property } = _decorator;
+import { Manager } from './Manager';
+
+@ccclass('FoodButton')
+export class FoodButton extends Component {
+    start() {
+        const button = this.getComponent(Button);
+        log('Button');
+        button.clickEvents.push(this.createHandler());
+    }
+
+    createHandler() {
+        const eventHandler = new Button.EventHandler();
+        eventHandler.target = this.node;
+        eventHandler.component = 'FoodButton';
+        eventHandler.handler = 'onClick';
+        return eventHandler;
+    }
+
+    onClick() {
+        log('えさをさがす');
+        Manager.addFood();
+        Manager.nextDay();
+    }
+
+    update(deltaTime: number) {
+        
+    }
+}
+
+

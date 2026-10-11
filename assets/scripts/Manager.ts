@@ -1,4 +1,4 @@
-import { _decorator, Component, sys } from 'cc';
+import { _decorator, EventTarget, log } from 'cc';
 const { ccclass, property } = _decorator;
 import { GameData } from './logic/GameData';
 import { MemeData , MAX_HUNGER} from './logic/MemeData';
@@ -6,6 +6,12 @@ import { MemeState } from './logic/MemeState';
 
 export class Manager {
     private static __data: GameData = new GameData();
+    private static __eventTarget: EventTarget = new EventTarget();
+
+    public static onMemeCreated(callback: (memeData: MemeData) => void) {
+        this.__eventTarget.on('memeCreated', callback);
+        this.__eventTarget.on('memeCreated', ()=>{log('onMemeCreated called')});
+    }
 
     public static load(json?: string) {
         if (json) {
@@ -45,6 +51,24 @@ export class Manager {
 
     private static __resetPriority() {
         this.__data.memes.map(m => m.resetPriority());
+    }
+
+    public static festival() {
+        this.__resetPriority();
+        // 余剰の食料を消費し、はたらくめぇめぇ一定数を一時的に労働不能にすることでおまつり（繁殖）できる※2
+        // 余剰食糧の量に応じて繁殖に参加するめぇめぇの数が増えるmin(はたらくめぇめぇ数,（余剰食糧 - 群れの絶対数))/2頭)。こまめに繁殖するより一括で繁殖させた方が効率が良い。
+        // 繁殖に参加するめぇめぇは3-5ターン（繁殖コマンドを使用した土地依存）労働不能状態になり、ターン経過後参加しためぇめぇ数/2*1.3の子供が生まれる。親は労働不能状態が解除される。
+        let festMemeCount = Math.min(this.workersCount, Math.floor((this.__data.food - this.memesCount)/2));
+        const festPeriod = 3 + Math.floor(Math.random()*3);
+        log(`祭りに参加するめぇめぇ数:${festMemeCount}、祭り期間:${festPeriod}ターン`);
+        const sortedMemes =  this.__data.memes.sort((memeA, memeB) => memeA.priority - memeB.priority);
+        for (let meme of sortedMemes) {
+            if (meme.state === MemeState.WORKER && festMemeCount > 0) {
+                meme.state = MemeState.FESTIVAL;
+                meme.festLimit = festPeriod;
+                festMemeCount--;
+            }
+        }
     }
 
     private static __eat() {
@@ -96,6 +120,30 @@ export class Manager {
         }
     }
 
+    private static __checkFest() {
+        let pairCount = 0;
+        for (let meme of this.__data.memes.filter(m => m.state === MemeState.FESTIVAL)) {
+            meme.festLimit -= 1;
+            log(`祭り残り期間:${meme.festLimit}ターン`);
+            if (meme.festLimit <= 0) {
+                meme.state = MemeState.WORKER;
+                pairCount++;
+            }
+            if (pairCount % 2 === 0 && meme.festLimit <= 0) {
+                const childSeed = Math.random();
+                let rate = 1;
+                while (childSeed < rate) {
+                    log(`祭り終了、子供が生まれました${rate}`);
+                    const child = new MemeData();
+                    this.__data.memes.push(child);
+                    this.__eventTarget.emit('memeCreated', child);
+                    rate /= 3;
+                }
+            }
+        }
+    }
+            
+
     private static __growth() {
         this.__data.memes.map(m => m.growth ++);
     }
@@ -106,6 +154,7 @@ export class Manager {
         this.__eat();
         this.__checkDeath();
         this.__checkLeave();
+        this.__checkFest();
         this.__growth();
     }
 
