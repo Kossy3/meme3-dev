@@ -1,6 +1,7 @@
 import { _decorator, EventTarget, log } from 'cc';
 const { ccclass, property } = _decorator;
 import { GameData } from './logic/GameData';
+import { TerrainData } from './logic/TerrainData';
 import { MemeData , MAX_HUNGER} from './logic/MemeData';
 import { MemeState } from './logic/MemeState';
 
@@ -23,6 +24,10 @@ export class Manager {
         return this.__data.food;
     }
 
+    public static get cult(): number {
+        return this.__data.cult;
+    }
+
     public static addFood() {
         const memeCount = this.memesCount;
         const workP = Math.sqrt(this.__data.cult*10)/memeCount;
@@ -31,6 +36,10 @@ export class Manager {
                 this.__data.food += 2;
             }
         }
+    }
+
+    public static clean() {
+        this.__data.terrain[this.__data.steps].dirt = 0;
     }
 
     public static addRottenFood(amount: number) {
@@ -47,6 +56,10 @@ export class Manager {
 
     public static get memes(): MemeData[] {
         return this.__data.memes;
+    }
+
+    public static get terrain(): TerrainData {
+        return this.__data.terrain[this.__data.steps];
     }
 
     private static __resetPriority() {
@@ -72,6 +85,7 @@ export class Manager {
     }
 
     private static __eat() {
+        this.__resetPriority();
         const sortedMemes =  this.__data.memes.sort((memeA, memeB) => memeA.priority - memeB.priority);
         for (let meme of sortedMemes) {
             // 死亡、脱走しためぇめぇをスキップ
@@ -121,25 +135,27 @@ export class Manager {
     }
 
     private static __checkFest() {
-        let pairCount = 0;
+        let parentCount = 0;
         for (let meme of this.__data.memes.filter(m => m.state === MemeState.FESTIVAL)) {
             meme.festLimit -= 1;
             log(`祭り残り期間:${meme.festLimit}ターン`);
             if (meme.festLimit <= 0) {
                 meme.state = MemeState.WORKER;
-                pairCount++;
+                parentCount++;
             }
-            if (pairCount % 2 === 0 && meme.festLimit <= 0) {
-                const childSeed = Math.random();
-                let rate = 1;
-                while (childSeed < rate) {
-                    log(`祭り終了、子供が生まれました${rate}`);
-                    const child = new MemeData();
-                    this.__data.memes.push(child);
-                    this.__eventTarget.emit('memeCreated', child);
-                    rate /= 3;
-                }
+        }
+        for (let i = 0; i < Math.floor(parentCount/2); i++) {
+            const childSeed = Math.random();
+            let rate = 1;
+            let childCount = 0;
+            while (childSeed < rate) {
+                const child = new MemeData();
+                this.__data.memes.push(child);
+                this.__eventTarget.emit('memeCreated', child);
+                rate /= 3;
+                childCount++;
             }
+            log(`子供が生まれました (${childCount}つ子)`);
         }
     }
             
@@ -148,12 +164,46 @@ export class Manager {
         this.__data.memes.map(m => m.growth ++);
     }
 
+    private static __polute() {
+        this.__data.terrain[this.__data.steps].dirt += 1;
+    }
+
+    private static __checkInfect() {
+        let infectCount = 0;
+        // 土地の汚染度が5以上の場合は感染者を1人増やす
+        if (this.__data.terrain[this.__data.steps].dirt > 5) {
+            infectCount ++;
+        }
+        // 感染者は50%の確率で別の感染者を1人増やす
+        this.__data.memes.map(m => {
+            if (m.state === MemeState.SCRAPIE && Math.random() < 0.5) {
+                infectCount++;
+            }
+        });
+        this.__resetPriority();
+
+        // 健康なめぇめぇをランダムに並びカエル
+        const helthyMemes =  this.__data.memes
+            .sort((memeA, memeB) => memeA.priority - memeB.priority)
+            .filter(m => m.state !== MemeState.SCRAPIE && m.state !== MemeState.DEATH && m.state !== MemeState.LEAVE);
+        // 感染者を増やす
+        for (let meme of helthyMemes) {
+            if (infectCount > 0) {
+                meme.state = MemeState.SCRAPIE;
+                infectCount--;
+            }
+        }
+
+    }
+
     public static nextDay() {
         this.__data.day += 1;
-        this.__resetPriority();
+        this.__polute();
         this.__eat();
         this.__checkDeath();
         this.__checkLeave();
+        this.__resetPriority();
+        this.__checkInfect();
         this.__checkFest();
         this.__growth();
     }

@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Vec3, math, log } from 'cc';
+import { _decorator, Component, Node, Vec3, math, log, Sprite } from 'cc';
 const { ccclass, property } = _decorator;
 import { Manager } from './Manager';
 import { MemeData } from './logic/MemeData';
@@ -10,13 +10,18 @@ export class Meme extends Component {
 
     // 楕円の範囲設定
     private readonly radiusX: number = 500;
-    private readonly radiusY: number = 250;
+    private readonly radiusY: number = 180;
+    private readonly center: Vec3 = new Vec3(0, -90, 0); // 楕円の中心座標
 
     // ランダムウォーク用変数
     private targetPos: Vec3 = new Vec3();
     private moveSpeed: number = 80;      // 移動速度
     private isWaiting: boolean = false;  // 立ち止まり中か
     private waitTimer: number = 0;       // 立ち止まりタイマー
+    private isMoving: boolean = true;    // 移動中かどうかのフラグ
+
+    @property(Node)
+    private spriteNode: Node;
 
     spawn() {
         // 初期位置を楕円内のランダムな位置に設定
@@ -48,12 +53,22 @@ export class Meme extends Component {
             return;
         }
 
+        if (this.isMoving) {
+            return; // 移動中は他の処理をスキップ
+        }
+
         // 状態ごとの回転・動作（2Dの場合は node.angle を使用）
         if (this.__data.state === MemeState.WORKER) {
             this.node.angle = 0;
             this.updateRandomWalk(deltaTime);
         } else if (this.__data.state === MemeState.FESTIVAL) {
             this.node.angle = 90;
+            this.updateRandomWalk(deltaTime);
+        } else if (this.__data.state === MemeState.SCRAPIE) {
+            this.node.angle = 270;
+            this.updateRandomWalk(deltaTime);
+        } else {
+            this.node.angle = 180;
             this.updateRandomWalk(deltaTime);
         }
     }
@@ -86,6 +101,14 @@ export class Meme extends Component {
             Vec3.moveTowards(newPos, currentPos, this.targetPos, this.moveSpeed * dt);
             this.node.setPosition(newPos);
         }
+
+
+            // 移動方向に応じて画像を反転させる
+            if (this.targetPos.x < this.node.position.x) {
+                this.spriteNode.setScale(1, 1, 1);
+            } else {
+                this.spriteNode.setScale(-1, 1, 1);
+            }
     }
 
     /**
@@ -98,8 +121,13 @@ export class Meme extends Component {
         
         const x = Math.cos(angle) * rx * r;
         const y = Math.sin(angle) * ry * r;
-        
-        return new Vec3(x, y, 0);
+        // 中心座標を加算して楕円の中心を基準にする
+        return new Vec3(x + this.center.x, y + this.center.y, 0);
+    }
+
+    public async go() {
+        this.spriteNode.setScale(1, 1, 1);
+        this.isMoving = true;
     }
 
     /**

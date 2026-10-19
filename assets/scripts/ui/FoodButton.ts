@@ -1,9 +1,9 @@
 import { _decorator, Component, Node, Button, log } from 'cc';
 const { ccclass, property } = _decorator;
-import { Manager } from './Manager';
+import { Manager } from '../Manager';
 
-@ccclass('FestivalButton')
-export class FestivalButton extends Component {
+@ccclass('FoodButton')
+export class FoodButton extends Component {
     start() {
         const button = this.getComponent(Button);
         log('Button');
@@ -13,22 +13,19 @@ export class FestivalButton extends Component {
     createHandler() {
         const eventHandler = new Button.EventHandler();
         eventHandler.target = this.node;
-        eventHandler.component = 'FestivalButton';
+        eventHandler.component = 'FoodButton';
         eventHandler.handler = 'onClick';
         return eventHandler;
     }
 
     onClick() {
-        log('おまつり');
-        Manager.festival();
+        log('えさをさがす');
+        Manager.addFood();
         Manager.nextDay();
     }
 
-    isAvailable() {
-        //（余剰食糧 - 群れの絶対数))/2頭 >= 2
-        const foodMergin = (Manager.food-Manager.memesCount)/2 >= 2;
-        const enoughWorker = Manager.workersCount >= 2;
-        this.node.active = foodMergin && enoughWorker;
+    update(deltaTime: number) {
+        
     }
 }
 

@@ -1,6 +1,6 @@
 import { _decorator, Component, Node, Label} from 'cc';
 const { ccclass, property } = _decorator;
-import { Manager } from './Manager';
+import { Manager } from '../Manager';
 
 @ccclass('Food')
 export class Food extends Component {
