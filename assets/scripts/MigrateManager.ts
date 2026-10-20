@@ -17,30 +17,32 @@ export class MigrateManager extends Component {
     private 通常操作看板: AnimationAsync;
 
     async go() {
+        Manager.go();
         await Promise.all([
             this.移動看板.playAsync("看板引っ込み"), 
             this.通常操作看板.playAsync("看板引っ込み")
         ]);
-        Manager.go();
         await this.animation.playAsync("すすむ");
-        Manager.stop();
         await Promise.all([
             this.移動看板.playAsync("看板出現"), 
             this.通常操作看板.playAsync("看板出現")
         ]);
+        Manager.stop();
+        Manager.nextDay();
     }
 
     async back() {
+        Manager.back();
         await Promise.all([
             this.移動看板.playAsync("看板引っ込み"), 
             this.通常操作看板.playAsync("看板引っ込み")
         ]);
-        Manager.back();
         await this.animation.playAsync("もどる");
-        Manager.stop();
         await Promise.all([
             this.移動看板.playAsync("看板出現"), 
             this.通常操作看板.playAsync("看板出現")
         ]);
+        Manager.stop();
+        Manager.nextDay();
     }
 }

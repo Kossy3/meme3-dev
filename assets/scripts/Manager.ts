@@ -2,7 +2,7 @@ import { _decorator, EventTarget, log } from 'cc';
 const { ccclass, property } = _decorator;
 import { GameData } from './logic/GameData';
 import { TerrainData } from './logic/TerrainData';
-import { MemeData , MAX_HUNGER} from './logic/MemeData';
+import { MemeData , MAX_HUNGER, DANGER_HUNGER} from './logic/MemeData';
 import { MemeState } from './logic/MemeState';
 
 export class Manager {
@@ -16,28 +16,38 @@ export class Manager {
         this.__eventTarget.on('memeCreated', ()=>{log('onMemeCreated called')});
     }
 
+    public static onCommand(callback: () => void) {
+        this.__eventTarget.on('command', callback);
+    }
+
+    public static onNextDay(callback: () => void) {
+        this.__eventTarget.on('nextDay', callback);
+    }
+
     public static go() {
+        this.__eventTarget.emit('command');
         this.__data.steps += 1;
         if (this.__data.steps >= this.__data.terrain.length) {
             this.__data.terrain.push(new TerrainData());
         }
-        for (let meme of this.__data.memes) {
+        for (let meme of this.__activeMemes) {
             meme.go();
         }
     }
 
     public static stop() {
-        for (let meme of this.__data.memes) {
+        for (let meme of this.__activeMemes) {
             meme.stop();
         }
     }
 
     public static back() {
+        this.__eventTarget.emit('command');
         if (this.__data.steps <= 0) {
             return;
         }
         this.__data.steps = this.__data.steps - 1;
-        for (let meme of this.__data.memes) {
+        for (let meme of this.__activeMemes) {
             meme.back();
         }
     }
@@ -56,7 +66,12 @@ export class Manager {
         return this.__data.cult;
     }
 
+    public static get steps(): number {
+        return this.__data.steps;
+    }
+
     public static addFood() {
+        this.__eventTarget.emit('command');
         const memeCount = this.memesCount;
         const workP = Math.sqrt(this.__data.cult*10)/memeCount;
         for (let i = 0; i < this.workersCount; i++) {
@@ -67,6 +82,7 @@ export class Manager {
     }
 
     public static clean() {
+        this.__eventTarget.emit('command');
         this.__data.terrain[this.__data.steps].dirt = 0;
     }
 
@@ -90,11 +106,16 @@ export class Manager {
         return this.__data.terrain[this.__data.steps];
     }
 
+    private static get __activeMemes() {
+        return this.__data.memes.filter(m => m.state !== MemeState.DEATH && m.state !== MemeState.LEAVE);
+    }
+
     private static __resetPriority() {
         this.__data.memes.map(m => m.resetPriority());
     }
 
     public static festival() {
+        this.__eventTarget.emit('command');
         this.__resetPriority();
         // 余剰の食料を消費し、はたらくめぇめぇ一定数を一時的に労働不能にすることでおまつり（繁殖）できる※2
         // 余剰食糧の量に応じて繁殖に参加するめぇめぇの数が増えるmin(はたらくめぇめぇ数,（余剰食糧 - 群れの絶対数))/2頭)。こまめに繁殖するより一括で繁殖させた方が効率が良い。
@@ -142,7 +163,7 @@ export class Manager {
 
     private static __checkDeath() {
         for (let meme of this.__data.memes) {
-            if (meme.hunger/MAX_HUNGER < Math.random()) {
+            if (meme.hunger/DANGER_HUNGER < Math.random()) {
                 meme.state = MemeState.DEATH;
             }
         }
@@ -225,6 +246,7 @@ export class Manager {
     }
 
     public static nextDay() {
+        this.__data.food += 2;
         this.__data.day += 1;
         this.__polute();
         this.__eat();
@@ -234,6 +256,7 @@ export class Manager {
         this.__checkInfect();
         this.__checkFest();
         this.__growth();
+        this.__eventTarget.emit('nextDay');
     }
 
 

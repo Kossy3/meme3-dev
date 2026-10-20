@@ -1,5 +1,6 @@
 import { MemeState } from "./MemeState";
-export const MAX_HUNGER = 3;
+export const MAX_HUNGER = 5;
+export const DANGER_HUNGER = 3;
 export const WORKER_GROWTH = 5;
 import { EventTarget } from "cc";
 

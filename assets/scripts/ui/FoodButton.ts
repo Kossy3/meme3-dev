@@ -1,13 +1,20 @@
 import { _decorator, Component, Node, Button, log } from 'cc';
 const { ccclass, property } = _decorator;
 import { Manager } from '../Manager';
+import { AnimationAsync } from '../utils/AnimationAsync';
 
 @ccclass('FoodButton')
 export class FoodButton extends Component {
+
+    @property(Button)
+    private button: Button;
+    @property(AnimationAsync)
+    private animation: AnimationAsync;
+
+    private __available: boolean = false;
+
     start() {
-        const button = this.getComponent(Button);
-        log('Button');
-        button.clickEvents.push(this.createHandler());
+        this.button.clickEvents.push(this.createHandler());
     }
 
     createHandler() {
@@ -24,8 +31,26 @@ export class FoodButton extends Component {
         Manager.nextDay();
     }
 
-    update(deltaTime: number) {
-        
+    lock() {
+        this.button.interactable = false;
+    }
+
+    unlock() {
+        this.button.interactable = true;
+    }
+
+    isAvailable() {
+        const beforeState = this.__available;
+        const afterState = Manager.workersCount > 0;
+        log("引っ込み")
+        if (beforeState !== afterState) {
+            this.__available = afterState;
+            if (afterState) {
+                this.animation.playAsync("看板出現");
+            } else {
+                this.animation.playAsync("看板引っ込み");
+            }
+        } 
     }
 }
 
