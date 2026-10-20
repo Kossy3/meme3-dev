@@ -18,7 +18,7 @@ export class Meme extends Component {
     private moveSpeed: number = 80;      // 移動速度
     private isWaiting: boolean = false;  // 立ち止まり中か
     private waitTimer: number = 0;       // 立ち止まりタイマー
-    private isMoving: boolean = true;    // 移動中かどうかのフラグ
+    private isMigration: boolean = false;    // 移動中かどうかのフラグ
 
     @property(Node)
     private spriteNode: Node;
@@ -27,13 +27,15 @@ export class Meme extends Component {
         // 初期位置を楕円内のランダムな位置に設定
         const startPos = this.getRandomPointInEllipse(this.radiusX, this.radiusY);
         this.node.setPosition(startPos);
-
         // 最初の目的地を設定
         this.setNewTarget();
     }
 
     load(data: MemeData) {
         this.__data = data;
+        this.__data.onGo(() => this.__go());
+        this.__data.onStop(() => this.__stop());
+        this.__data.onBack(() => this.__back());
     }
 
     start() {
@@ -53,7 +55,7 @@ export class Meme extends Component {
             return;
         }
 
-        if (this.isMoving) {
+        if (this.isMigration) {
             return; // 移動中は他の処理をスキップ
         }
 
@@ -125,9 +127,17 @@ export class Meme extends Component {
         return new Vec3(x + this.center.x, y + this.center.y, 0);
     }
 
-    public async go() {
+    private __go() {
+        this.spriteNode.setScale(-1, 1, 1);
+        this.isMigration = true;
+    }
+    private __stop() {
+        this.isMigration = false;
+    }
+
+    private __back() {
         this.spriteNode.setScale(1, 1, 1);
-        this.isMoving = true;
+        this.isMigration = true;
     }
 
     /**

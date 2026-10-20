@@ -9,9 +9,37 @@ export class Manager {
     private static __data: GameData = new GameData();
     private static __eventTarget: EventTarget = new EventTarget();
 
+    private static __lock: boolean = false;
+
     public static onMemeCreated(callback: (memeData: MemeData) => void) {
         this.__eventTarget.on('memeCreated', callback);
         this.__eventTarget.on('memeCreated', ()=>{log('onMemeCreated called')});
+    }
+
+    public static go() {
+        this.__data.steps += 1;
+        if (this.__data.steps >= this.__data.terrain.length) {
+            this.__data.terrain.push(new TerrainData());
+        }
+        for (let meme of this.__data.memes) {
+            meme.go();
+        }
+    }
+
+    public static stop() {
+        for (let meme of this.__data.memes) {
+            meme.stop();
+        }
+    }
+
+    public static back() {
+        if (this.__data.steps <= 0) {
+            return;
+        }
+        this.__data.steps = this.__data.steps - 1;
+        for (let meme of this.__data.memes) {
+            meme.back();
+        }
     }
 
     public static load(json?: string) {

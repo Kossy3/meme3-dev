@@ -1,10 +1,14 @@
 import { _decorator, Component, Node, Button, log, Sprite } from 'cc';
 const { ccclass, property } = _decorator;
 import { Manager } from '../Manager';
-
+import { MigrateManager } from '../MigrateManager';
 
 @ccclass('BackButton')
 export class BackButton extends Component {
+
+    @property(MigrateManager)
+    private migrateManager: MigrateManager;
+
     start() {
         const button = this.getComponent(Button);
         log('Button');
@@ -20,7 +24,7 @@ export class BackButton extends Component {
     }
 
     onClick() {
-        log("戻る");
+        this.migrateManager.back();
     }
 
     update(deltaTime: number) {
