@@ -133,6 +133,18 @@ export class Manager {
         }
     }
 
+    public static treat() {
+        this.__eventTarget.emit('command');
+        // 治療コマンドは、すべてのスクレイピー状態のめぇめぇを治療する。
+        // cult値を治療数-3消費する
+        const scrapieMemes = this.__data.memes.filter(m => m.state === MemeState.SCRAPIE)
+        this.__data.cult -= Math.max(0, scrapieMemes.length - 3);
+        scrapieMemes.map(m => {
+            m.state = MemeState.WORKER
+            m.treat();
+        });
+    }
+
     private static __eat() {
         this.__resetPriority();
         const sortedMemes =  this.__data.memes.sort((memeA, memeB) => memeA.priority - memeB.priority);

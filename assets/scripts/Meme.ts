@@ -3,6 +3,7 @@ const { ccclass, property } = _decorator;
 import { Manager } from './Manager';
 import { MemeData } from './logic/MemeData';
 import { MemeState } from './logic/MemeState';
+import { TreatmentManager } from './TreatmentManager';
 
 @ccclass('Meme')
 export class Meme extends Component {
@@ -36,6 +37,7 @@ export class Meme extends Component {
         this.__data.onGo(() => this.__go());
         this.__data.onStop(() => this.__stop());
         this.__data.onBack(() => this.__back());
+        this.__data.onTreat(() => this.__treat());
     }
 
     start() {
@@ -138,6 +140,10 @@ export class Meme extends Component {
     private __back() {
         this.spriteNode.setScale(1, 1, 1);
         this.isMigration = true;
+    }
+
+    private async __treat() {
+        TreatmentManager.treatment(this.node);
     }
 
     /**

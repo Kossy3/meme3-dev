@@ -28,6 +28,10 @@ export class MemeData {
         this.__eventTarget.on('back', callback);
     }
 
+    onTreat(callback: () => void) {
+        this.__eventTarget.on('treat', callback);
+    }
+
     json() {
         return {
             growth: this.growth,
@@ -67,5 +71,9 @@ export class MemeData {
 
     back() {
         this.__eventTarget.emit('back');
+    }
+
+    treat() {
+        this.__eventTarget.emit('treat');
     }
 }
