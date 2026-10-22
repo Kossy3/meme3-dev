@@ -33,9 +33,7 @@ export class FestivalButton extends Component {
     isAvailable() {
         const beforeState = this.__available;
         //（余剰食糧 - 群れの絶対数))/2頭 >= 2
-        const foodMergin = (Manager.food-Manager.memesCount)/2 >= 2;
-        const enoughWorker = Manager.workersCount >= 2;
-        const afterState = foodMergin && enoughWorker;
+        const afterState = Manager.canFestival;
         if (beforeState !== afterState) {
             this.__available = afterState;
             if (afterState) {
@@ -52,6 +50,15 @@ export class FestivalButton extends Component {
 
     unlock() {
         this.button.interactable = true;
+    }
+
+    hide() {
+        const beforeState = this.__available;
+        const afterState = false;
+        if (beforeState !== afterState) {
+            this.__available = afterState;
+            this.animation.playAsync("看板引っ込み");
+        } 
     }
 }
 

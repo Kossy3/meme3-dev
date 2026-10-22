@@ -1,6 +1,7 @@
 import { MemeData } from "./MemeData";
 import { TerrainData } from "./TerrainData";
 import { MemeState } from "./MemeState";
+import { BuildingType } from "./BuildingType";
 
 export class GameData {
     day: number = 0;
@@ -16,6 +17,8 @@ export class GameData {
     terrain: TerrainData[] = [
         new TerrainData(),
     ];
+    building: BuildingType = BuildingType.NONE;
+    buildingCost: number = 0;
 
     json(): string {
         return JSON.stringify({
@@ -25,6 +28,8 @@ export class GameData {
             terrain: this.terrain.map(t => t.json()),
             memes: this.memes.filter(m => m.state !== MemeState.DEATH && m.state !== MemeState.LEAVE).map(m => m.json()),
             cult: this.cult,
+            building: this.building,
+            buildingCost: this.buildingCost,
             steps: this.steps
         });
     }
@@ -37,6 +42,8 @@ export class GameData {
         this.terrain = data.terrain.map(t => new TerrainData().load(t));
         this.memes = data.memes.map(m => new MemeData().load(m));
         this.cult = data.cult;
+        this.building = data.building;
+        this.buildingCost = data.buildingCost;
         this.steps = data.steps;
     }
 }

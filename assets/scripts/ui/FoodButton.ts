@@ -52,6 +52,15 @@ export class FoodButton extends Component {
             }
         } 
     }
+
+    hide() {
+        const beforeState = this.__available;
+        const afterState = false;
+        if (beforeState !== afterState) {
+            this.__available = afterState;
+            this.animation.playAsync("看板引っ込み");
+        } 
+    }
 }
 
 

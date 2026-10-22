@@ -42,7 +42,7 @@ export class BackButton extends Component {
 
     isAvailable() {
         const beforeState = this.__available;
-        const afterState = Manager.steps > 0;
+        const afterState = Manager.steps > 0 && !Manager.isBuilding;
         if (beforeState !== afterState) {
             this.__available = afterState;
             if (afterState) {
@@ -50,6 +50,15 @@ export class BackButton extends Component {
             } else {
                 this.animation.playAsync("看板引っ込み");
             }
+        } 
+    }
+
+    hide() {
+        const beforeState = this.__available;
+        const afterState = false;
+        if (beforeState !== afterState) {
+            this.__available = afterState;
+            this.animation.playAsync("看板引っ込み");
         } 
     }
 

@@ -4,12 +4,11 @@ import { GameData } from './logic/GameData';
 import { TerrainData } from './logic/TerrainData';
 import { MemeData , MAX_HUNGER, DANGER_HUNGER} from './logic/MemeData';
 import { MemeState } from './logic/MemeState';
+import { BuildingType } from './logic/BuildingType';
 
 export class Manager {
     private static __data: GameData = new GameData();
     private static __eventTarget: EventTarget = new EventTarget();
-
-    private static __lock: boolean = false;
 
     public static onMemeCreated(callback: (memeData: MemeData) => void) {
         this.__eventTarget.on('memeCreated', callback);
@@ -94,6 +93,10 @@ export class Manager {
         return this.__data.memes.filter(m => m.state === MemeState.WORKER).length;
     }
 
+    public static get buildersCount(): number {
+        return this.__data.memes.filter(m => m.state === MemeState.BUILDING).length;
+    }
+
     public static get scrapieCount(): number {
         return this.__data.memes.filter(m => m.state === MemeState.SCRAPIE).length;
     }
@@ -118,6 +121,18 @@ export class Manager {
         this.__data.memes.map(m => m.resetPriority());
     }
 
+    public static get isBuilding(): boolean {
+        return this.__data.building !== BuildingType.NONE;
+    }
+
+    public static get buildingNow(): BuildingType {
+        return this.__data.building;
+    }
+
+    public static get buildingProgress(): number {
+        return this.__data.buildingCost / this.buildCost(this.__data.building);
+    }
+
     public static festival() {
         this.__eventTarget.emit('command');
         this.__resetPriority();
@@ -137,6 +152,10 @@ export class Manager {
         }
     }
 
+    public static get canFestival(): boolean {
+        return Math.min(this.workersCount, Math.floor((this.__data.food - this.memesCount)/2)) >= 2;
+    }
+
     public static treat() {
         this.__eventTarget.emit('command');
         // 治療コマンドは、すべてのスクレイピー状態のめぇめぇを治療する。
@@ -147,6 +166,34 @@ export class Manager {
             m.state = MemeState.WORKER
             m.treat();
         });
+    }
+
+    public static get canBuild() : boolean {
+        // 建築作業中ではない、かつ現在の土地に建物が建設されていない場合に建設可能
+        return this.__data.building === BuildingType.NONE && this.__data.terrain[this.__data.steps].building === BuildingType.NONE && this.workersCount > 0;
+    }
+
+    public static build(buildingType: BuildingType) {
+        this.__eventTarget.emit('command');
+        if (!this.canBuild) {
+            return;
+        }
+        this.__data.building = buildingType;
+        this.__data.buildingCost = this.buildCost(buildingType);
+        for (let meme of this.__data.memes.filter(m => m.state === MemeState.WORKER)) {
+            meme.state = MemeState.BUILDING;
+        }
+    }
+
+    public static buildCost(buildingType: BuildingType): number {
+        switch (buildingType) {
+            case BuildingType.FARM:
+                return 20 + this.__data.steps;
+            case BuildingType.TOWER:
+                return 20 + this.__data.cult * 2;
+            case BuildingType.HOME:
+                return 20 + this.__data.steps;
+        }
     }
 
     private static __eat() {
@@ -223,7 +270,30 @@ export class Manager {
             log(`子供が生まれました (${childCount}つ子)`);
         }
     }
-            
+
+    private static __checkBuilding() {
+        if (this.__data.building !== BuildingType.NONE) {
+            // 建築作業をすすめる
+            const buildPoint = this.buildersCount;
+            if (buildPoint > 0) {
+                this.__data.buildingCost -= buildPoint;
+                log(`建築作業が進みました。残り${this.__data.buildingCost}ポイント`);
+            }
+            // 建築作業が完了した場合は建物を建設する
+            if (this.__data.buildingCost <= 0) {
+                this.__data.terrain[this.__data.steps].building = this.__data.building;
+                log(`建物が完成しました。建物タイプ:${this.__data.building}`);
+                if (this.__data.building === BuildingType.TOWER) {
+                    this.__data.cult += this.__data.steps;
+                }
+                this.__data.building = BuildingType.NONE;
+                this.__data.buildingCost = 0;
+                for (let meme of this.__data.memes.filter(m => m.state === MemeState.BUILDING)) {
+                    meme.state = MemeState.WORKER;
+                }
+            }
+        }
+    }  
 
     private static __growth() {
         this.__data.memes.map(m => m.growth ++);
@@ -264,14 +334,15 @@ export class Manager {
     public static nextDay() {
         this.__data.food += 2;
         this.__data.day += 1;
-        this.__polute();
         this.__eat();
         this.__checkDeath();
         this.__checkLeave();
         this.__resetPriority();
         this.__checkInfect();
         this.__checkFest();
+        this.__checkBuilding();
         this.__growth();
+        this.__polute();
         this.__eventTarget.emit('nextDay');
     }
 

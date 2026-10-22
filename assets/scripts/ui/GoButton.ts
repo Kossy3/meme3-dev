@@ -46,7 +46,7 @@ export class GoButton extends Component {
 
     isAvailable() {
         const beforeState = this.__available;
-        const afterState = true; // 常に有効
+        const afterState = !Manager.isBuilding; // 建築中は移動不可
         log("引っ込み")
         if (beforeState !== afterState) {
             this.__available = afterState;
@@ -55,6 +55,15 @@ export class GoButton extends Component {
             } else {
                 this.animation.playAsync("看板引っ込み");
             }
+        } 
+    }
+
+    hide() {
+        const beforeState = this.__available;
+        const afterState = false;
+        if (beforeState !== afterState) {
+            this.__available = afterState;
+            this.animation.playAsync("看板引っ込み");
         } 
     }
 }
