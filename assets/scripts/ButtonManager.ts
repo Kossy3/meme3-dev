@@ -6,6 +6,7 @@ import { FestivalButton } from './ui//FestivalButton';
 import { GoButton } from './ui/GoButton';
 import { BackButton } from './ui/BackButton';
 import { CleanButton } from './ui/CleanButton';
+import { TreatButton } from './ui/TreatButton';
 
 @ccclass('ButtonManager')
 export class ButtonManager extends Component {
@@ -19,6 +20,8 @@ export class ButtonManager extends Component {
     private goButton: GoButton
     @property(BackButton)
     private backButton: BackButton;
+    @property(TreatButton)
+    private treatButton: TreatButton;
     start() {
         Manager.onCommand(() => {
             this.lock();
@@ -37,6 +40,7 @@ export class ButtonManager extends Component {
         this.goButton.lock();
         this.backButton.lock();
         this.cleanButton.lock();
+        this.treatButton.lock();
     }
 
     unlock() {
@@ -45,6 +49,7 @@ export class ButtonManager extends Component {
         this.goButton.unlock();
         this.backButton.unlock();
         this.cleanButton.unlock();
+        this.treatButton.unlock();
     }
 
     updateAvailable(){
@@ -53,5 +58,6 @@ export class ButtonManager extends Component {
         this.goButton.isAvailable();
         this.cleanButton.isAvailable();
         this.foodButton.isAvailable();
+        this.treatButton.isAvailable();
     }
 }

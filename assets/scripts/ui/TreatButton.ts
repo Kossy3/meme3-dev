@@ -27,8 +27,13 @@ export class TreatButton extends Component {
         return eventHandler;
     }
 
+    async wait (ms: number) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
     async onClick() {
         Manager.treat();
+        await this.wait(1000);
         Manager.nextDay();
     }
 
@@ -42,7 +47,7 @@ export class TreatButton extends Component {
 
     isAvailable() {
         const beforeState = this.__available;
-        const afterState = Manager.terrain.dirt > 0;
+        const afterState = Manager.scrapieCount > 0;
         if (beforeState !== afterState) {
             this.__available = afterState;
             if (afterState) {

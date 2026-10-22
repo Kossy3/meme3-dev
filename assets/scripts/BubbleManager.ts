@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Prefab, NodePool, instantiate, Vec3, Vec2, ParticleSystem2D, UIOpacity, tween, v3 } from 'cc';
+import { _decorator, Component, Node, Prefab, NodePool, instantiate, Vec3, Vec2, UIOpacity, tween, Tween, v3 } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('BubbleManager')
@@ -11,17 +11,24 @@ export class BubbleManager extends Component {
     @property({ tooltip: '事前にプールに生成しておく個数' })
     public initialPoolSize: number = 50;
 
+    @property({ tooltip: '1回の bubbling で出す泡の数' })
+    public bubbleCount: number = 5;
+
+    @property({ tooltip: '泡の出現位置のばらつき半径（ワールド単位）' })
+    public spawnRadius: number = 25;
+
+    @property({ tooltip: '泡ごとの出現ずらし時間（秒）' })
+    public staggerInterval: number = 0.05;
+
     private pool: NodePool = new NodePool();
 
     onLoad() {
-        // シングルトンの登録
         if (BubbleManager._instance && BubbleManager._instance !== this) {
             this.node.destroy();
             return;
         }
         BubbleManager._instance = this;
 
-        // 初回ラグ（スパイク）を防ぐため、事前にプールを作成しておく（ウォームアップ）
         this.initPool();
     }
 
@@ -29,13 +36,9 @@ export class BubbleManager extends Component {
         if (BubbleManager._instance === this) {
             BubbleManager._instance = null;
         }
-        // シーン破棄時にプール内のノードをクリア
         this.pool.clear();
     }
 
-    /**
-     * プールの初期化
-     */
     private initPool() {
         if (!this.bubblePrefab) return;
         for (let i = 0; i < this.initialPoolSize; i++) {
@@ -44,9 +47,6 @@ export class BubbleManager extends Component {
         }
     }
 
-    /**
-     * プールからノードを取得（足りなければ新規生成）
-     */
     private getBubbleNode(): Node {
         let node = this.pool.get();
         if (!node) {
@@ -55,93 +55,117 @@ export class BubbleManager extends Component {
         return node;
     }
 
-    /**
-     * ノードをプールへ返却（回収）
-     */
     public recycle(node: Node) {
         if (node && node.isValid) {
+            Tween.stopAllByTarget(node);
             node.removeFromParent();
             this.pool.put(node);
         }
     }
 
+    // ------------------------------------------------------------
+    // Tween を Promise 化するヘルパー
+    // ------------------------------------------------------------
+    private playTween<T extends object>(t: Tween<T>): Promise<void> {
+        return new Promise<void>((resolve) => {
+            t.call(() => resolve()).start();
+        });
+    }
+
+    private wait(seconds: number): Promise<void> {
+        if (seconds <= 0) return Promise.resolve();
+        return this.playTween(tween(this.node).delay(seconds));
+    }
+
+    // ------------------------------------------------------------
+
     /**
-     * インスタンスメソッド: 指定位置から泡を放出する
-     * @param pos 発生座標 (Vec3 または Vec2)
+     * 指定位置から泡を複数放出する。すべての泡の演出が終わったら resolve。
+     * @param pos 発生座標【ワールド座標】 (Vec3 または Vec2)
      * @param parentNode 生成先の親ノード（省略時は BubbleManager のノード）
+     * @param count 泡の数（省略時は bubbleCount）
      */
-    public bubbling(pos: Vec3 | Vec2, parentNode?: Node) {
+    public async bubbling(pos: Vec3 | Vec2, parentNode?: Node, count?: number): Promise<void> {
         if (!this.bubblePrefab) {
             console.error('[BubbleManager] bubblePrefab がインスペクターでアサインされていません。');
             return;
         }
 
-        const bubbleNode = this.getBubbleNode();
+        const worldPos = pos instanceof Vec2 ? v3(pos.x, pos.y, 0) : pos.clone();
         const targetParent = parentNode || this.node;
-        bubbleNode.setParent(targetParent);
+        const n = count ?? this.bubbleCount;
 
-        // 座標のセット
-        if (pos instanceof Vec2) {
-            bubbleNode.setPosition(pos.x, pos.y, 0);
-        } else {
-            bubbleNode.setPosition(pos);
+        const tasks: Promise<void>[] = [];
+        for (let i = 0; i < n; i++) {
+            tasks.push(this.spawnBubble(worldPos, targetParent, i * this.staggerInterval));
         }
+        await Promise.all(tasks);
+    }
 
-        // --- パターン A: ParticleSystem2D がついていればパーティクル再生 ---
-        const ps = bubbleNode.getComponent(ParticleSystem2D);
-        if (ps) {
-            ps.resetSystem();
-            
-            // 再生時間（Duration + Life）が過ぎたらプールに返却
-            const duration = ps.duration > 0 ? ps.duration : 0.1;
-            const maxLife = ps.life + ps.lifeVar;
-            const totalTime = duration + maxLife;
+    /**
+     * 泡1個ぶんの生成〜演出〜回収
+     */
+    private async spawnBubble(worldPos: Vec3, parent: Node, delay: number): Promise<void> {
+        await this.wait(delay);
+        if (!this.isValid || !parent.isValid) return;
 
-            this.scheduleOnce(() => {
-                ps.stopSystem();
-                this.recycle(bubbleNode);
-            }, totalTime);
-            return;
-        }
+        const bubbleNode = this.getBubbleNode();
+        Tween.stopAllByTarget(bubbleNode); // プール再利用時の前回 Tween を念のため停止
+        bubbleNode.active = true;
+        bubbleNode.setParent(parent);
 
-        // --- パターン B: 通常の画像ノードの場合（Tweenでポコッと浮かんで消える演出） ---
+        // 出現位置：ワールド座標で指定（親の位置・スケールの影響を受けない）
+        const angle = Math.random() * Math.PI * 2;
+        const r = Math.sqrt(Math.random()) * this.spawnRadius; // 円内に均等に散らす
+        bubbleNode.setWorldPosition(
+            worldPos.x + Math.cos(angle) * r,
+            worldPos.y + Math.sin(angle) * r,
+            worldPos.z
+        );
+
         bubbleNode.setScale(v3(0, 0, 1));
-        
+
         let opacity = bubbleNode.getComponent(UIOpacity);
         if (!opacity) {
             opacity = bubbleNode.addComponent(UIOpacity);
         }
         opacity.opacity = 255;
 
-        // ランダムに少しゆらぎながら上にポコッと浮き上がる
+        // ローカル座標で上方向へゆらぎながら浮き上がる
         const startPos = bubbleNode.position.clone();
-        const targetY = startPos.y + 40 + Math.random() * 20;
         const targetX = startPos.x + (Math.random() - 0.5) * 30;
+        const targetY = startPos.y + 40 + Math.random() * 20;
+        const peakScale = 1.0 + Math.random() * 0.4;
+        const endScale = peakScale * 0.7;
 
-        // スケールと移動アニメーション
-        tween(bubbleNode)
-            .to(0.1, { scale: v3(1.2, 1.2, 1) }, { easing: 'backOut' })
-            .to(0.35, { scale: v3(0.8, 0.8, 1), position: v3(targetX, targetY, 0) })
-            .start();
-
-        // フェードアウトと回収
-        tween(opacity)
-            .to(0.25, { opacity: 255 })
-            .to(0.2, { opacity: 0 })
-            .call(() => {
-                this.recycle(bubbleNode);
-            })
-            .start();
+        try {
+            await Promise.all([
+                // スケールと移動
+                this.playTween(
+                    tween(bubbleNode)
+                        .to(0.1, { scale: v3(peakScale, peakScale, 1) }, { easing: 'backOut' })
+                        .to(0.35, { scale: v3(endScale, endScale, 1), position: v3(targetX, targetY, startPos.z) })
+                ),
+                // フェードアウト
+                this.playTween(
+                    tween(opacity)
+                        .delay(0.25)
+                        .to(0.2, { opacity: 0 })
+                ),
+            ]);
+        } finally {
+            this.recycle(bubbleNode);
+        }
     }
 
     /**
-     * クラスから直接1行で呼び出せる静的ショートカット
-     * @param pos 発生座標 (Vec3 または Vec2)
-     * @param parentNode 生成先の親ノード（省略可）
+     * 静的ショートカット
+     * 使用例: BubbleManager.bubbling(worldPos);  /  await BubbleManager.bubbling(worldPos);
+     * @param pos 発生座標【ワールド座標】
      */
-    public static bubbling(pos: Vec3 | Vec2, parentNode?: Node) {
+    public static async bubbling(pos: Vec3 | Vec2, parentNode?: Node, count?: number): Promise<void> {
         if (this._instance) {
-            this._instance.bubbling(pos, parentNode);
+            await this._instance.bubbling(pos, parentNode, count);
         } else {
             console.warn('[BubbleManager] シーン内に BubbleManager ノードが存在しないか、初期化されていません。');
         }

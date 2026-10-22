@@ -94,6 +94,10 @@ export class Manager {
         return this.__data.memes.filter(m => m.state === MemeState.WORKER).length;
     }
 
+    public static get scrapieCount(): number {
+        return this.__data.memes.filter(m => m.state === MemeState.SCRAPIE).length;
+    }
+
     public static get memesCount(): number {
         return this.__data.memes.filter(m => m.state !== MemeState.DEATH && m.state !== MemeState.LEAVE).length;
     }

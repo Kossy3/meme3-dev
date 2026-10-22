@@ -143,7 +143,7 @@ export class Meme extends Component {
     }
 
     private async __treat() {
-        TreatmentManager.treatment(this.node);
+        await TreatmentManager.treatment(this.node);
     }
 
     /**
