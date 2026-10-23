@@ -8,9 +8,9 @@ export class GameData {
     food: number = 0;
     rottenFood: number = 0;
     memes: MemeData[] = [
-        new MemeData(false),
-        new MemeData(false),
-        new MemeData(false),
+        new MemeData(true),
+        new MemeData(true),
+        new MemeData(true),
     ];
     steps: number= 0;
     cult: number = 10;
