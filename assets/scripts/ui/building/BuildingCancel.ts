@@ -4,7 +4,7 @@ import { Manager } from '../../Manager';
 import { AnimationAsync } from '../../utils/AnimationAsync';
 import { BuildingType } from '../../logic/BuildingType';
 
-@ccclass('BUildingCancel')
+@ccclass('BuildingCancel')
 export class BuildingCancel extends Component {
 
     @property(Button)

@@ -17,9 +17,9 @@ export class Meme extends Component {
     private button: Button;
 
     // 楕円の範囲設定
-    private readonly radiusX: number = 500;
-    private readonly radiusY: number = 180;
-    private readonly center: Vec3 = new Vec3(0, -90, 0); // 楕円の中心座標
+    private radiusX: number = 500;
+    private radiusY: number = 180;
+    private center: Vec3 = new Vec3(0, -90, 0); // 楕円の中心座標
 
     // ランダムウォーク用変数
     private targetPos: Vec3 = new Vec3();
@@ -30,6 +30,12 @@ export class Meme extends Component {
 
     @property(Node)
     private spriteNode: Node;
+    @property(Node)
+    private metNode: Node;
+    @property(Node)
+    private virusNode: Node;
+    @property(Node)
+    private festivalNode: Node;
 
     spawn() {
         // 初期位置を楕円内のランダムな位置に設定
@@ -46,6 +52,21 @@ export class Meme extends Component {
             }
             this.isMigration = false;
             this.button.interactable = true;
+        });
+        Manager.onEvent(() => {
+            if (!this.button) return;
+            this.button.interactable = false;
+            this.radiusX = 250;
+            this.center = new Vec3(-320, -90, 0);
+            this.isWaiting = false;
+            this.setNewTarget();
+            this.moveSpeed = 200;
+        });
+        Manager.onFinEvent(() => {
+            if (!this.button) return;
+            this.button.interactable = true;
+            this.radiusX = 500;
+            this.center = new Vec3(0, -90, 0);
         });
         this.button.clickEvents.push(this.createHandler());
     }
@@ -101,22 +122,11 @@ export class Meme extends Component {
             return; // 移動中は他の処理をスキップ
         }
 
-        // 状態ごとの回転・動作（2Dの場合は node.angle を使用）
-        if (this.__data.state === MemeState.WORKER) {
-            this.node.angle = 0;
-            this.updateRandomWalk(deltaTime);
-        } else if (this.__data.state === MemeState.FESTIVAL) {
-            this.node.angle = 90;
-            this.updateRandomWalk(deltaTime);
-        } else if (this.__data.state === MemeState.SCRAPIE) {
-            this.node.angle = 270;
-            this.updateRandomWalk(deltaTime);
-        } else {
-            this.node.angle = 180;
-            this.updateRandomWalk(deltaTime);
-        }
+        this.metNode.active = this.__data.state === MemeState.BUILDING;
+        this.virusNode.active = this.__data.state === MemeState.SCRAPIE;
+        this.festivalNode.active = this.__data.state === MemeState.FESTIVAL;
+        this.updateRandomWalk(deltaTime);
     }
-
     /**
      * 自然なランダムウォーク処理
      */

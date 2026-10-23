@@ -46,6 +46,14 @@ export class ButtonManager extends Component {
             this.unlock();
             this.updateAvailable();
         });
+        Manager.onEvent(() => {
+            this.lock();
+            this.hide();
+        });
+        Manager.onFinEvent(() => {
+            this.unlock();
+            this.updateAvailable();
+        });
         this.unlock();
         this.updateAvailable();
         this.buildingButton.onSelect(() => {

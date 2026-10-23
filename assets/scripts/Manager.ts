@@ -23,6 +23,22 @@ export class Manager {
         this.__eventTarget.on('nextDay', callback);
     }
 
+    public static onFinEvent(callback: () => void) {
+        this.__eventTarget.on('finEvent', callback);
+    }
+
+    public static onWolf(callback: () => void) {
+        this.__eventTarget.on('wolf', callback);
+    }
+
+    public static onEvent(callback: () => void) {
+        this.__eventTarget.on('event', callback);
+    }
+
+    public static finEvent() {
+        this.__eventTarget.emit('finEvent');
+    }
+
     public static go() {
         this.__eventTarget.emit('command');
         this.__data.steps += 1;
@@ -341,6 +357,34 @@ export class Manager {
 
     }
 
+    public static get childCount () : number {
+        return this.__data.memes.filter(m => m.growth < 5).length;
+    }
+
+    private static __checkEvent() {
+        // オオカミイベントの発生率
+        const wolfEventRate = 0.1 + (this.childCount > 0 ? 0.2 : 0);
+        // 商人イベントの発生率
+        const merchantEventRate = 0;
+        // えさ発見イベントの発生率
+        const foodEventRate = 0;
+        let p = Math.random();
+        if (p < wolfEventRate) {
+            this.__eventTarget.emit('wolf', Math.floor(Math.random()* 5));
+            this.__eventTarget.emit('event');
+        }
+        p -= wolfEventRate;
+        if (p < merchantEventRate) {
+            this.__eventTarget.emit('merchant');
+            this.__eventTarget.emit('event');
+        }
+        p -= merchantEventRate;
+        if (p < foodEventRate) {
+            this.__eventTarget.emit('food');
+            this.__eventTarget.emit('event');
+        }
+    }
+
     public static nextDay() {
         this.__data.food += 2;
         this.__data.day += 1;
@@ -354,6 +398,7 @@ export class Manager {
         this.__growth();
         this.__polute();
         this.__eventTarget.emit('nextDay');
+        this.__checkEvent();
     }
 
 
