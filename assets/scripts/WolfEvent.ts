@@ -49,27 +49,11 @@ export class WolfEvent extends Component {
         this.wolfmenu.onSacrifice(this.sacrifice.bind(this));
         this.wolfmenu.onGodhand(this.godhand.bind(this));
         Manager.onWolf(this.wolfevent.bind(this));
-        Manager.onFinEvent(this.finEvent.bind(this));
         Manager.onBattle(this.battle.bind(this));
     }
 
-    async finEvent() {
-        await Promise.all(this.wolfs.map((wolf) => {
-            // tweenでみぎから左に移動させる
-            return new Promise<void>((resolve) => {
-                const tweenInstance = tween(wolf)
-                    .to(1, { position: new Vec3(800, -90, 0) })
-                    .call(() => {
-                        wolf.destroy();
-                        resolve();
-                    })
-                    .start();
-            });
-        }));
-        this.wolfs = [];
-    }
-
     async wolfevent(wolfnum: number) {
+        this.wolfs = [];
         for (let i = 0; i < wolfnum; i++) {
             const child = instantiate(this.wolfPrefab);
             this.node.addChild(child);
@@ -88,7 +72,7 @@ export class WolfEvent extends Component {
                     .start();
             });
         }));
-        this.wolfmenu.showWolfMenu();
+        this.wolfmenu.showWolfMenu(wolfnum);
     }
 
     wolfMoveTo(wolf: Node, position: Vec3) {
@@ -194,6 +178,22 @@ export class WolfEvent extends Component {
         });
     }
 
+    async exitWolf() {
+        await Promise.all(this.wolfs.map((wolf) => {
+            // tweenでみぎから左に移動させる
+            return new Promise<void>((resolve) => {
+                const tweenInstance = tween(wolf)
+                    .to(1, { position: new Vec3(800, -90, 0) })
+                    .call(() => {
+                        wolf.destroy();
+                        resolve();
+                    })
+                    .start();
+            });
+        }));
+        this.wolfs = [];
+    }
+
     wait(ms: number) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
@@ -231,6 +231,7 @@ export class WolfEvent extends Component {
                     Manager.killWolf();
                     break;
                 case "escape":
+                    await this.exitWolf();
                     break;
                 case "win":
                     break;

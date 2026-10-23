@@ -40,10 +40,12 @@ export class WolfMenu extends Component {
         this.event.on('godhand', callback);
     }
 
-    showWolfMenu() {
+    showWolfMenu(wolfnum: number) {
         this.sacrificeButton.show();
         this.battleButton.show();
-        this.godhandButton.show();
+        if (wolfnum + 2 <= Manager.cult) {
+            this.godhandButton.show();
+        }
     }
     
     hideBuildingMenu() {    

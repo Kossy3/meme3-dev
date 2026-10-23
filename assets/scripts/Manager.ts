@@ -101,7 +101,6 @@ export class Manager {
     }
 
     public static killWolf() {
-        this.__data.cult += 1;
         this.__data.food += 10;
     }
 
