@@ -6,6 +6,7 @@ import { MemeState } from './logic/MemeState';
 import { TreatmentManager } from './TreatmentManager';
 import {EatButton} from './ui/EatButton';
 import { WolfEvent } from './WolfEvent';
+import { BubbleManager } from './BubbleManager';
 
 @ccclass('Meme')
 export class Meme extends Component {
@@ -88,6 +89,9 @@ export class Meme extends Component {
         this.__data.onHorner(() => {
             WolfEvent.dropCult(this.node);
         });
+        if (this.__data.growth == 0) {
+            BubbleManager.bubbling(this.node.worldPosition, 5, 2, "up");
+        }
     }
 
     async dead() {

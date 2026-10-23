@@ -89,7 +89,7 @@ export class BubbleManager extends Component {
      * @param texture バブルのテクスチャ
      * @param logic バブルの動き方
      */
-    public async bubbling(pos: Vec3 | Vec2, count?: number, texture: 'bubble' | 'wata' = "bubble", logic: "up"|"circle" = "up"): Promise<void> {
+    public async bubbling(pos: Vec3 | Vec2, count?: number, texture: number = 0, logic: "up"|"circle" = "up"): Promise<void> {
         if (!this.bubblePrefab) {
             console.error('[BubbleManager] bubblePrefab がインスペクターでアサインされていません。');
             return;
@@ -123,7 +123,7 @@ export class BubbleManager extends Component {
     private async spawnCircle(
         worldPos: Vec3,
         delay: number,
-        type: 'bubble' | 'wata',
+        type: number,
         angle?: number,
         distance: number = 60
     ): Promise<void> {
@@ -133,14 +133,7 @@ export class BubbleManager extends Component {
         const bubble = this.getBubbleNode();
         Tween.stopAllByTarget(bubble); // プール再利用時の前回 Tween を停止
         bubble.node.active = true;
-        switch (type) {
-            case 'bubble':
-                bubble.bubble();
-                break;
-            case 'wata':
-                bubble.wata();
-                break;
-        }
+        bubble.changeSprite(type);
         bubble.node.setParent(this.node);
 
         // 出現位置：中心のワールド座標に配置
@@ -187,21 +180,14 @@ export class BubbleManager extends Component {
     /**
      * 泡1個ぶんの生成〜演出〜回収
      */
-    private async spawnUp(worldPos: Vec3, delay: number, type: 'bubble' | 'wata'): Promise<void> {
+    private async spawnUp(worldPos: Vec3, delay: number, type: number): Promise<void> {
         await this.wait(delay);
         if (!this.isValid ) return;
 
         const bubble = this.getBubbleNode();
         Tween.stopAllByTarget(bubble); // プール再利用時の前回 Tween を念のため停止
         bubble.node.active = true;
-        switch (type) {
-            case 'bubble':
-                bubble.bubble();
-                break;
-            case 'wata':
-                bubble.wata();
-                break;
-        }
+        bubble.changeSprite(type);
         bubble.node.setParent(this.node); // BubbleManager の子として追加
 
         // 出現位置：ワールド座標で指定（親の位置・スケールの影響を受けない）
@@ -257,7 +243,7 @@ export class BubbleManager extends Component {
      * @param texture バブルの種類
      * @param logic バブルの動き方
      */
-    public static async bubbling(pos: Vec3 | Vec2, count?: number, texture: 'bubble' | 'wata' = 'bubble', logic: "up"|"circle" = "up"): Promise<void> {
+    public static async bubbling(pos: Vec3 | Vec2, count?: number, texture: number = 0, logic: "up"|"circle" = "up"): Promise<void> {
         if (this._instance) {
             await this._instance.bubbling(pos, count, texture, logic);
         } else {

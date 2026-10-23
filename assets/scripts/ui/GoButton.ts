@@ -46,7 +46,7 @@ export class GoButton extends Component {
 
     isAvailable() {
         const beforeState = this.__available;
-        const afterState = !Manager.isBuilding; // 建築中は移動不可
+        const afterState = Manager.canGo(); // 建築中は移動不可
         log("引っ込み")
         if (beforeState !== afterState) {
             this.__available = afterState;

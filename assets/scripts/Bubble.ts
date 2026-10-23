@@ -1,20 +1,18 @@
-import { _decorator, Component, Sprite} from 'cc';
+import { _decorator, Component, Sprite, SpriteFrame} from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('Bubble')
 export class Bubble extends Component {
-    @property(Sprite)
-    private bubbleSprite: Sprite;
-    @property(Sprite)
-    private wataSprite: Sprite;
 
-    bubble() {
-        this.bubbleSprite.node.active = true;
-        this.wataSprite.node.active = false;
-    }
+    @property(Sprite)
+    private sprite: Sprite | null = null;
 
-    wata() {
-        this.bubbleSprite.node.active = false;
-        this.wataSprite.node.active = true;
+    @property([SpriteFrame])
+    private bubbleSprite: SpriteFrame[] = [];
+
+    changeSprite(type: number) {
+        if (this.sprite && this.bubbleSprite[type]) {
+            this.sprite.spriteFrame = this.bubbleSprite[type];
+        }
     }
 }

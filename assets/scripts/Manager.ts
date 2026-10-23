@@ -43,9 +43,14 @@ export class Manager {
         this.__eventTarget.on('battle', callback);
     }
 
+    public static canGo(): boolean {
+        return !this.isBuilding && this.__data.food >= this.__data.steps + 10;
+    }
+
     public static go() {
         this.__eventTarget.emit('command');
         this.__data.steps += 1;
+        this.__data.food -= this.__data.steps + 10;
         if (this.__data.steps >= this.__data.terrain.length) {
             this.__data.terrain.push(new TerrainData());
         }
@@ -223,6 +228,9 @@ export class Manager {
         // 2匹は残して戦う
         for (let meme of battleMemesorted.slice(0, -2)) {
             memeHp = 10;
+            if (wolfIndex >= wolfnum) {
+                break;
+            }
             battleResult.push({event: "start", meme: meme, wolf:wolfIndex, memeHp: memeHp, wolfHp: wolfHp});
             while(memeHp > 0 && wolfIndex < wolfnum) {
                 if (wolfHp <= 0) {
@@ -289,6 +297,7 @@ export class Manager {
         }
         this.__data.building = buildingType;
         this.__data.buildingCost = this.buildCost(buildingType);
+        log(this.__workers.length + '人のめぇめぇが建築作業を開始しました。');
         for (let meme of this.__workers) {
             meme.state = MemeState.BUILDING;
         }
