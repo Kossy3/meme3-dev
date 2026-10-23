@@ -12,6 +12,13 @@ export class MemeData {
     buildLimit: number = 0;
     private __eventTarget: EventTarget = new EventTarget();
     private __priority: number = Math.random();
+
+    constructor(worker: boolean = false) {
+        if (worker) {
+            this.worker();
+        }
+    }
+
     get priority() {
         return this.__priority;
     }

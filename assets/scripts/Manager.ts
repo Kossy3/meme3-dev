@@ -123,7 +123,11 @@ export class Manager {
     }
 
     public static get workersCount(): number {
-        return this.__data.memes.filter(m => m.state === MemeState.WORKER).length;
+        return this.__data.memes.filter(m => m.state === MemeState.WORKER && m.growth >= 5).length;
+    }
+
+    private static get __workers() {
+        return this.__data.memes.filter(m => m.state === MemeState.WORKER && m.growth >= 5);
     }
 
     public static get buildersCount(): number {
@@ -175,9 +179,9 @@ export class Manager {
         let festMemeCount = Math.min(this.workersCount, Math.floor((this.__data.food - this.memesCount)/2));
         const festPeriod = 3 + Math.floor(Math.random()*3);
         log(`祭りに参加するめぇめぇ数:${festMemeCount}、祭り期間:${festPeriod}ターン`);
-        const sortedMemes =  this.__data.memes.sort((memeA, memeB) => memeA.priority - memeB.priority);
+        const sortedMemes =  this.__workers.sort((memeA, memeB) => memeA.priority - memeB.priority);
         for (let meme of sortedMemes) {
-            if (meme.state === MemeState.WORKER && festMemeCount > 0) {
+            if (festMemeCount > 0) {
                 meme.state = MemeState.FESTIVAL;
                 meme.festLimit = festPeriod;
                 festMemeCount--;
@@ -276,6 +280,8 @@ export class Manager {
         return this.__data.building === BuildingType.NONE && this.__data.terrain[this.__data.steps].building === BuildingType.NONE && this.workersCount > 0;
     }
 
+
+
     public static build(buildingType: BuildingType) {
         this.__eventTarget.emit('command');
         if (!this.canBuild) {
@@ -283,7 +289,7 @@ export class Manager {
         }
         this.__data.building = buildingType;
         this.__data.buildingCost = this.buildCost(buildingType);
-        for (let meme of this.__data.memes.filter(m => m.state === MemeState.WORKER)) {
+        for (let meme of this.__workers) {
             meme.state = MemeState.BUILDING;
         }
     }
@@ -338,10 +344,7 @@ export class Manager {
     private static __checkLeave() {
         const memeCount = this.memesCount;
         const notLeaveP = Math.sqrt(this.__data.cult*10)/memeCount;
-        for (let meme of this.__data.memes.filter(m => 
-            m.state == MemeState.WORKER 
-            || m.state == MemeState.BUILDING
-        )) {
+        for (let meme of this.__activeMemes.filter(m => m.growth >= 5)) {
             const leave = Math.random() > notLeaveP;
             if (leave) {
                 meme.state = MemeState.LEAVE;

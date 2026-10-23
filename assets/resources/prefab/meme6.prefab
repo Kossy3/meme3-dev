@@ -1389,6 +1389,35 @@
     "festivalNode": {
       "__id__": 9
     },
+    "memeSprite": {
+      "__id__": 17
+    },
+    "spriteFrames": [
+      {
+        "__uuid__": "6b2be9f0-46d3-4104-aa02-6c7305c3634e@f9941",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "5e5bef5c-40fc-4399-85cc-f50795dbbef1@f9941",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "aa89d459-f536-4823-a1bd-7ff6be46d771@f9941",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "362f7690-fa91-4de4-b69a-84b982103407@f9941",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "68ea44a9-2c1a-4172-b4fc-ae37c192601b@f9941",
+        "__expectedType__": "cc.SpriteFrame"
+      },
+      {
+        "__uuid__": "203dd3b8-cbef-4a19-8469-a698957337b2@f9941",
+        "__expectedType__": "cc.SpriteFrame"
+      }
+    ],
     "_id": ""
   },
   {

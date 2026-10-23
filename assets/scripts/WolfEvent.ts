@@ -225,7 +225,7 @@ export class WolfEvent extends Component {
                 case "wolfDead":
                     await Promise.all([
                         this.fadeOutSprite(this.wolfs[result.wolf], 0.2),
-                        WolfEvent.dropCult(this.wolfs[result.wolf]),
+                        // WolfEvent.dropCult(this.wolfs[result.wolf]),
                         WolfEvent.dropMeet(this.wolfs[result.wolf])
                     ]);
                     Manager.killWolf();

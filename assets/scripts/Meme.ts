@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Vec3, math, log, Button, tween } from 'cc';
+import { _decorator, Component, Node, Vec3, math, log, Button, tween, SpriteFrame, Sprite } from 'cc';
 const { ccclass, property } = _decorator;
 import { Manager } from './Manager';
 import { MemeData } from './logic/MemeData';
@@ -37,6 +37,10 @@ export class Meme extends Component {
     private virusNode: Node;
     @property(Node)
     private festivalNode: Node;
+    @property(Sprite)
+    private memeSprite: Sprite;
+    @property([SpriteFrame])
+    private spriteFrames: SpriteFrame[] = [];
 
     spawn() {
         // 初期位置を楕円内のランダムな位置に設定
@@ -147,6 +151,7 @@ export class Meme extends Component {
         this.metNode.active = this.__data.state === MemeState.BUILDING;
         this.virusNode.active = this.__data.state === MemeState.SCRAPIE;
         this.festivalNode.active = this.__data.state === MemeState.FESTIVAL;
+        this.memeSprite.spriteFrame = this.spriteFrames[Math.min(5, this.__data.growth)];
         this.updateRandomWalk(deltaTime);
     }
     /**
