@@ -96,8 +96,9 @@ export class Meme extends Component {
 
     async dead() {
         // yを縮小
+        const beforeScale = this.node.scale.clone();
         tween(this.node)
-            .to(0.2, { scale: new Vec3(1, 0, 1) })
+            .to(0.2, { scale: new Vec3(beforeScale.x, 0, 1) })
             .start();
     }
 
