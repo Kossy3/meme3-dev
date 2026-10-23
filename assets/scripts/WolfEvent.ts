@@ -218,6 +218,7 @@ export class WolfEvent extends Component {
                     break;
                 case "memeDead":
                     result.meme.dead();
+                    result.meme.horner();
                     await this.wait(500);
                     Manager.harnessMeme(result.meme);
                     break;
@@ -243,6 +244,7 @@ export class WolfEvent extends Component {
 
     async godhand() {
         // オオカミの数だけ剣を生成し、
+        Manager.devineSord(this.wolfs.length);
         await Promise.all(this.wolfs.map(async (wolf) => {
             const sord = instantiate(this.devineSord);
             this.node.addChild(sord);
@@ -261,6 +263,7 @@ export class WolfEvent extends Component {
             });
         }));
         Manager.finEvent();
+
     }
 
     getRandomVec3 (value: number) {

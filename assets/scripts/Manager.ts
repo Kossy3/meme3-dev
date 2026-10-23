@@ -206,8 +206,8 @@ export class Manager {
                     return memeA.growth - memeB.growth;
                 }
         });
-        const memePower = this.__data.cult;
-        const wolfPower = this.__data.steps;
+        const memePower = Math.max(10, this.__data.cult);
+        const wolfPower = Math.max(3, this.__data.steps);
         const battleResult = [];
         let wolfHp = 10;
         let memeHp = 10;

@@ -81,6 +81,9 @@ export class Meme extends Component {
                 .to(0.2, new Vec3(-50, -90, 0))
                 .start();
         })
+        this.__data.onHorner(() => {
+            WolfEvent.dropCult(this.node);
+        });
     }
 
     async dead() {

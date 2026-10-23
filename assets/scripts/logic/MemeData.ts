@@ -40,6 +40,14 @@ export class MemeData {
         this.__eventTarget.emit('battleStart');
     }
 
+    onHorner(callback: () => void) {
+        this.__eventTarget.on('horner', callback);
+    }
+
+    horner() {
+        this.__eventTarget.emit('horner');
+    }
+
     onDead(callback: () => void) {
         this.__eventTarget.on('dead', () => {
             callback();
