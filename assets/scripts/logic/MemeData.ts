@@ -2,7 +2,7 @@ import { MemeState } from "./MemeState";
 export const MAX_HUNGER = 5;
 export const DANGER_HUNGER = 3;
 export const WORKER_GROWTH = 5;
-import { EventTarget } from "cc";
+import { EventTarget, Vec3 } from "cc";
 
 export class MemeData {
     growth: number = 0;
@@ -30,6 +30,14 @@ export class MemeData {
 
     onTreat(callback: () => void) {
         this.__eventTarget.on('treat', callback);
+    }
+
+    onBattleStart(callback: () => void) {
+        this.__eventTarget.on('battleStart', callback);
+    }
+
+    battleStart() {
+        this.__eventTarget.emit('battleStart');
     }
 
     json() {

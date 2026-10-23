@@ -36,7 +36,6 @@ export class SacrificeButton extends Component {
     }
 
     async onClick() {
-        Manager.finEvent();
         this.eventTarget.emit('select');
     }
 

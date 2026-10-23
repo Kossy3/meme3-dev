@@ -42,9 +42,13 @@ export class WolfMenu extends Component {
 
     showWolfMenu() {
         this.sacrificeButton.show();
+        this.battleButton.show();
+        this.godhandButton.show();
     }
     
     hideBuildingMenu() {    
         this.sacrificeButton.hide();
+        this.battleButton.hide();
+        this.godhandButton.hide();
     }
 }

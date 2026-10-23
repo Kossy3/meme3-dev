@@ -39,6 +39,10 @@ export class Manager {
         this.__eventTarget.emit('finEvent');
     }
 
+    public static onBattle(callback: () => void) {
+        this.__eventTarget.on('battle', callback);
+    }
+
     public static go() {
         this.__eventTarget.emit('command');
         this.__data.steps += 1;
@@ -176,6 +180,62 @@ export class Manager {
             this.addRottenFood(10);
         }
         meme.state = MemeState.DEATH;
+    }
+
+    public static battle(wolfnum: number) {
+        this.__resetPriority();
+        const battleMemesorted = this.__activeMemes.sort(
+            (memeA, memeB) => {
+                if (memeA.growth === memeB.growth) {
+                    return memeA.priority - memeB.priority;
+                } else {
+                    return memeA.growth - memeB.growth;
+                }
+        });
+        const memePower = this.__data.cult;
+        const wolfPower = this.__data.steps;
+        const battleResult = [];
+        let wolfHp = 10;
+        let memeHp = 10;
+        let wolfIndex = 0;
+        let memeIndex = 0;
+        // 2匹は残して戦う
+        for (let meme of battleMemesorted.slice(0, -2)) {
+            memeHp = 10;
+            battleResult.push({event: "start", meme: meme, wolf:wolfIndex, memeHp: memeHp, wolfHp: wolfHp});
+            while(memeHp > 0 && wolfIndex < wolfnum) {
+                if (wolfHp <= 0) {
+                    wolfHp = 10;
+                    battleResult.push({event: "start", meme: meme, wolf:wolfIndex, memeHp: memeHp, wolfHp: wolfHp});
+                }
+                const attack = Math.random() < memePower * (memePower + wolfPower);
+                if (attack) {
+                    wolfHp -= 1;
+                    battleResult.push({event: "memeAttack", meme: meme, wolf:wolfIndex, memeHp: memeHp, wolfHp: wolfHp});
+                    if (wolfHp <= 0) {
+                        battleResult.push({event: "wolfDead", meme: meme, wolf:wolfIndex, memeHp: memeHp, wolfHp: wolfHp});
+                        wolfIndex += 1;
+                    }
+                } else {
+                    memeHp -= 1;
+                    battleResult.push({event: "wolfAttack", meme: meme, wolf:wolfIndex, memeHp: memeHp, wolfHp: wolfHp});
+                    if (memeHp <= 0) {
+                        battleResult.push({event: "memeDead", meme: meme, wolf:wolfIndex, memeHp: memeHp, wolfHp: wolfHp});
+                    }
+                }
+            }
+            memeIndex += 1;
+        }
+        // 2匹になったら逃走
+        if (memeIndex == battleMemesorted.length-2) {
+            battleResult.push({event: "escape", meme: battleMemesorted[memeIndex], wolf:wolfIndex, memeHp: memeHp, wolfHp: wolfHp});
+        }
+        // オオカミが全滅した場合は勝ち
+        if (wolfIndex == wolfnum) {
+            battleResult.push({event: "win", meme: battleMemesorted[memeIndex], wolf:wolfIndex, memeHp: memeHp, wolfHp: wolfHp});
+        }
+
+        this.__eventTarget.emit('battle', battleResult);
     }
 
     public static get canFestival(): boolean {
@@ -370,7 +430,7 @@ export class Manager {
         const foodEventRate = 0;
         let p = Math.random();
         if (p < wolfEventRate) {
-            this.__eventTarget.emit('wolf', Math.floor(Math.random()* 5));
+            this.__eventTarget.emit('wolf', Math.floor(Math.random()* 5) + 1);
             this.__eventTarget.emit('event');
         }
         p -= wolfEventRate;

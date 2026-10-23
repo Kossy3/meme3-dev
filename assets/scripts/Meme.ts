@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Vec3, math, log, Button } from 'cc';
+import { _decorator, Component, Node, Vec3, math, log, Button, tween } from 'cc';
 const { ccclass, property } = _decorator;
 import { Manager } from './Manager';
 import { MemeData } from './logic/MemeData';
@@ -69,6 +69,11 @@ export class Meme extends Component {
             this.center = new Vec3(0, -90, 0);
         });
         this.button.clickEvents.push(this.createHandler());
+        this.__data.onBattleStart(()=> {
+            tween(this.node)
+                .to(1, new Vec3(-50, -90, 0))
+                .start();
+        })
     }
 
     createHandler() {
