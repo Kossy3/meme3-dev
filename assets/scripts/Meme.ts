@@ -1,13 +1,20 @@
-import { _decorator, Component, Node, Vec3, math, log, Sprite } from 'cc';
+import { _decorator, Component, Node, Vec3, math, log, Button } from 'cc';
 const { ccclass, property } = _decorator;
 import { Manager } from './Manager';
 import { MemeData } from './logic/MemeData';
 import { MemeState } from './logic/MemeState';
 import { TreatmentManager } from './TreatmentManager';
+import {EatButton} from './ui/EatButton';
+import { BubbleManager } from './BubbleManager';
 
 @ccclass('Meme')
 export class Meme extends Component {
     private __data: MemeData | null = null;
+
+    @property(EatButton)
+    private eatUI: EatButton;
+    @property(Button)
+    private button: Button;
 
     // 楕円の範囲設定
     private readonly radiusX: number = 500;
@@ -30,6 +37,39 @@ export class Meme extends Component {
         this.node.setPosition(startPos);
         // 最初の目的地を設定
         this.setNewTarget();
+        this.eatUI.onClick(async () => {
+            this.eatUI.hide();
+            this.isMigration = true;
+            await BubbleManager.bubbling(this.node.worldPosition, null, 10, 'wata');
+            if (Manager.memesCount > 2) {
+                Manager.killMeme(this.__data);
+            }
+            this.isMigration = false;
+            this.button.interactable = true;
+        });
+        this.button.clickEvents.push(this.createHandler());
+    }
+
+    createHandler() {
+        const eventHandler = new Button.EventHandler();
+        eventHandler.target = this.node;
+        eventHandler.component = 'Meme';
+        eventHandler.handler = 'onClick';
+        return eventHandler;
+    }
+
+    async onClick() {
+        if (Manager.memesCount > 2) {
+            this.button.interactable = false;
+            this.eatUI.show();
+            await this.eatUI.wait(3000);
+            if (this.eatUI && !this.button.interactable) {
+                this.eatUI.hide();
+                this.button.interactable = true;
+            }
+            
+        }
+        
     }
 
     load(data: MemeData) {

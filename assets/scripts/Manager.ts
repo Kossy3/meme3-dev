@@ -82,7 +82,7 @@ export class Manager {
 
     public static clean() {
         this.__eventTarget.emit('command');
-        this.__data.terrain[this.__data.steps].dirt = 0;
+        this.__data.terrain[this.__data.steps].dirt = Math.max(0, this.__data.terrain[this.__data.steps].dirt - 5);
     }
 
     public static addRottenFood(amount: number) {
@@ -150,6 +150,16 @@ export class Manager {
                 festMemeCount--;
             }
         }
+    }
+
+    public static killMeme(meme: MemeData) {
+        if (meme.state === MemeState.SCRAPIE) {
+            this.addRottenFood(10);
+            this.__polute(5);
+        } else {
+            this.addRottenFood(10);
+        }
+        meme.state = MemeState.DEATH;
     }
 
     public static get canFestival(): boolean {
@@ -284,7 +294,7 @@ export class Manager {
                 this.__data.terrain[this.__data.steps].building = this.__data.building;
                 log(`建物が完成しました。建物タイプ:${this.__data.building}`);
                 if (this.__data.building === BuildingType.TOWER) {
-                    this.__data.cult += this.__data.steps;
+                    this.__data.cult += this.__data.steps+1;
                 }
                 this.__data.building = BuildingType.NONE;
                 this.__data.buildingCost = 0;
@@ -299,8 +309,8 @@ export class Manager {
         this.__data.memes.map(m => m.growth ++);
     }
 
-    private static __polute() {
-        this.__data.terrain[this.__data.steps].dirt += 1;
+    private static __polute(number: number = 1) {
+        this.__data.terrain[this.__data.steps].dirt += number;
     }
 
     private static __checkInfect() {
