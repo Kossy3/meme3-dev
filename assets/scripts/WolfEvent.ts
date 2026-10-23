@@ -4,6 +4,7 @@ import { MemeData } from './logic/MemeData';
 import { Manager } from './Manager';
 import { AnimationAsync } from './utils/AnimationAsync';
 import { WolfMenu } from './ui/wolf/WolfMenu';
+import { BubbleManager } from './BubbleManager';
 
 @ccclass('WolfEvent')
 export class WolfEvent extends Component {
@@ -120,8 +121,10 @@ export class WolfEvent extends Component {
                     await this.wait(40);
                     break;
                 case "memeDead":
+                    await BubbleManager.bubbling(new Vec3(640-50, 360-90, 0), 10, 'wata', 'circle');
                     break;
                 case "wolfDead":
+                    await BubbleManager.bubbling(new Vec3(640 + 50, 360-90, 0), 10, 'wata', 'circle');
                     break;
                 case "escape":
                     break;

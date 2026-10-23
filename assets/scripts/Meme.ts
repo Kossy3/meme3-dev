@@ -46,7 +46,7 @@ export class Meme extends Component {
         this.eatUI.onClick(async () => {
             this.eatUI.hide();
             this.isMigration = true;
-            await BubbleManager.bubbling(this.node.worldPosition, null, 10, 'wata');
+            await BubbleManager.bubbling(this.node.worldPosition, 10, 'wata');
             if (Manager.memesCount > 2) {
                 Manager.killMeme(this.__data);
             }
