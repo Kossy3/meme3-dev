@@ -89,6 +89,10 @@ export class Manager {
         return this.__data.steps;
     }
 
+    public static get day(): number {
+        return this.__data.day;
+    }
+
     public static addFood() {
         this.__eventTarget.emit('command');
         const memeCount = this.memesCount;
