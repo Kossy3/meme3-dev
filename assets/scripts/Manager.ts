@@ -192,6 +192,10 @@ export class Manager {
         meme.state = MemeState.DEATH;
     }
 
+    public static devineSord(wolfnum: number) {
+        this.__data.cult -= wolfnum;
+    }
+
     public static battle(wolfnum: number) {
         this.__resetPriority();
         const battleMemesorted = this.__activeMemes.sort(

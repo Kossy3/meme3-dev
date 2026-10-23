@@ -12,6 +12,7 @@ export class WolfEvent extends Component {
     private meet: Prefab | null = null;
     private rotten: Prefab | null = null;
     private cult: Prefab | null = null;
+    private devineSord: Prefab | null = null;
     private radiusX: number = 250;
     private radiusY: number = 180;
     private center: Vec3 = new Vec3(320, -90, 0); // 楕円の中心座標
@@ -39,6 +40,7 @@ export class WolfEvent extends Component {
         this.cult = resources.get('prefab/神秘', Prefab);
         this.wolfPrefab = resources.get('prefab/おおかみ', Prefab);
         this.rotten = resources.get('prefab/腐った肉', Prefab);
+        this.devineSord = resources.get('prefab/剣', Prefab);
         this.wolfmenu.onBattle(
             () => {
                 Manager.battle(this.wolfs.length);
@@ -240,6 +242,25 @@ export class WolfEvent extends Component {
     }
 
     async godhand() {
+        // オオカミの数だけ剣を生成し、
+        await Promise.all(this.wolfs.map(async (wolf) => {
+            const sord = instantiate(this.devineSord);
+            this.node.addChild(sord);
+            const sordPosition = wolf.position.clone().add(new Vec3(0, 400, 0));
+            sord.setPosition(sordPosition);
+            await new Promise<void>((resolve) => {
+                tween(sord)
+                    .to(0.3, { position: wolf.position.clone() })
+                .call(() => {
+                    WolfEvent.dropMeet(wolf);
+                    wolf.destroy();
+                    sord.destroy();
+                    resolve();
+                })
+                .start();
+            });
+        }));
+        Manager.finEvent();
     }
 
     getRandomVec3 (value: number) {
