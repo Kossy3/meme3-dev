@@ -100,6 +100,16 @@ export class Manager {
         }
     }
 
+    public static killWolf() {
+        this.__data.cult += 1;
+        this.__data.food += 10;
+    }
+
+    public static harnessMeme(meme: MemeData) {
+        this.__data.cult += 1;
+        meme.state = MemeState.DEATH;
+    }
+
     public static clean() {
         this.__eventTarget.emit('command');
         this.__data.terrain[this.__data.steps].dirt = Math.max(0, this.__data.terrain[this.__data.steps].dirt - 5);
@@ -208,7 +218,7 @@ export class Manager {
                     wolfHp = 10;
                     battleResult.push({event: "start", meme: meme, wolf:wolfIndex, memeHp: memeHp, wolfHp: wolfHp});
                 }
-                const attack = Math.random() < memePower * (memePower + wolfPower);
+                const attack = Math.random() < memePower / (memePower + wolfPower);
                 if (attack) {
                     wolfHp -= 1;
                     battleResult.push({event: "memeAttack", meme: meme, wolf:wolfIndex, memeHp: memeHp, wolfHp: wolfHp});

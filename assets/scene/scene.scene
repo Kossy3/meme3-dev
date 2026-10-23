@@ -8153,6 +8153,12 @@
     "wolfmenu": {
       "__id__": 376
     },
+    "foodLabel": {
+      "__id__": 9
+    },
+    "cultLabel": {
+      "__id__": 25
+    },
     "punchNode": {
       "__id__": 447
     },

@@ -5,7 +5,7 @@ import { MemeData } from './logic/MemeData';
 import { MemeState } from './logic/MemeState';
 import { TreatmentManager } from './TreatmentManager';
 import {EatButton} from './ui/EatButton';
-import { BubbleManager } from './BubbleManager';
+import { WolfEvent } from './WolfEvent';
 
 @ccclass('Meme')
 export class Meme extends Component {
@@ -27,6 +27,7 @@ export class Meme extends Component {
     private isWaiting: boolean = false;  // 立ち止まり中か
     private waitTimer: number = 0;       // 立ち止まりタイマー
     private isMigration: boolean = false;    // 移動中かどうかのフラグ
+    private stopWork: boolean = false; // 作業中かどうかのフラグ
 
     @property(Node)
     private spriteNode: Node;
@@ -46,7 +47,11 @@ export class Meme extends Component {
         this.eatUI.onClick(async () => {
             this.eatUI.hide();
             this.isMigration = true;
-            await BubbleManager.bubbling(this.node.worldPosition, 10, 'wata');
+            this.dead();
+            await Promise.all([
+                WolfEvent.dropMeet(this.node, true),
+                WolfEvent.dropCult(this.node)
+            ]);
             if (Manager.memesCount > 2) {
                 Manager.killMeme(this.__data);
             }
@@ -67,13 +72,22 @@ export class Meme extends Component {
             this.button.interactable = true;
             this.radiusX = 500;
             this.center = new Vec3(0, -90, 0);
+            this.stopWork = false;
         });
         this.button.clickEvents.push(this.createHandler());
         this.__data.onBattleStart(()=> {
+            this.stopWork = true;
             tween(this.node)
-                .to(1, new Vec3(-50, -90, 0))
+                .to(0.2, new Vec3(-50, -90, 0))
                 .start();
         })
+    }
+
+    async dead() {
+        // yを縮小
+        tween(this.node)
+            .to(0.2, { scale: new Vec3(1, 0, 1) })
+            .start();
     }
 
     createHandler() {
@@ -136,6 +150,9 @@ export class Meme extends Component {
      * 自然なランダムウォーク処理
      */
     private updateRandomWalk(dt: number) {
+        if (this.stopWork) {
+            return; // 作業中はランダムウォークを停止
+        }
         // 立ち止まり（休憩）中の処理
         if (this.isWaiting) {
             this.waitTimer -= dt;

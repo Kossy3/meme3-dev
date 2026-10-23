@@ -40,6 +40,16 @@ export class MemeData {
         this.__eventTarget.emit('battleStart');
     }
 
+    onDead(callback: () => void) {
+        this.__eventTarget.on('dead', () => {
+            callback();
+        });
+    }
+
+    dead() {
+        this.__eventTarget.emit('dead');
+    }
+
     json() {
         return {
             growth: this.growth,
