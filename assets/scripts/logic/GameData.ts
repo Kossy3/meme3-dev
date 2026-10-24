@@ -19,6 +19,7 @@ export class GameData {
     ];
     building: BuildingType = BuildingType.NONE;
     buildingCost: number = 0;
+    magic: boolean = false;
 
     json(): string {
         return JSON.stringify({

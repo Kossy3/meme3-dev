@@ -217,8 +217,6 @@ export class WolfEvent extends Component {
                     await this.wait(40);
                     break;
                 case "memeDead":
-                    result.meme.dead();
-                    result.meme.horner();
                     await this.wait(500);
                     Manager.harnessMeme(result.meme);
                     break;

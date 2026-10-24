@@ -113,9 +113,17 @@ export class Manager {
         this.__data.food += 10;
     }
 
+    public static assension() {
+        for (let meme of this.__activeMemes) {
+            meme.assension();
+        }
+    }
+
     public static harnessMeme(meme: MemeData) {
         this.__data.cult += 1;
         meme.state = MemeState.DEATH;
+        meme.horner();
+        meme.dead();
     }
 
     public static clean() {
@@ -163,6 +171,10 @@ export class Manager {
         this.__data.memes.map(m => m.resetPriority());
     }
 
+    public static canMagic(): boolean {
+        return this.__data.magic;
+    }
+
     public static get isBuilding(): boolean {
         return this.__data.building !== BuildingType.NONE;
     }
@@ -202,6 +214,7 @@ export class Manager {
             this.addRottenFood(10);
         }
         meme.state = MemeState.DEATH;
+        meme.dead();
     }
 
     public static devineSord(wolfnum: number) {
@@ -342,7 +355,17 @@ export class Manager {
         for (let meme of this.__data.memes) {
             if (meme.hunger/DANGER_HUNGER < Math.random()) {
                 meme.state = MemeState.DEATH;
+                meme.dead();
             }
+        }
+    }
+
+    private static __checkMagic() {
+        if (this.__data.steps >= 1) {
+            this.__data.magic = true;
+        }
+        if (this.__data.cult >= 1000) {
+            this.__data.magic = true;
         }
     }
 
@@ -353,6 +376,7 @@ export class Manager {
             const leave = Math.random() > notLeaveP;
             if (leave) {
                 meme.state = MemeState.LEAVE;
+                meme.leave();
             }
         }
     }
@@ -482,6 +506,7 @@ export class Manager {
         this.__checkBuilding();
         this.__growth();
         this.__polute();
+        this.__checkMagic();
         this.__eventTarget.emit('nextDay');
         this.__checkEvent();
     }

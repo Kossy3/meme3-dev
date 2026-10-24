@@ -12,6 +12,7 @@ import { FarmButton } from './ui/building/FarmButton';
 import { TowerButton } from './ui/building/TowerButton';
 import { HouseButton } from './ui/building/HouseButton';
 import { BuildingCancel } from './ui/building/BuildingCancel';
+import { AssensionButton } from './ui/AssensionButton';
 
 @ccclass('ButtonManager')
 export class ButtonManager extends Component {
@@ -37,6 +38,8 @@ export class ButtonManager extends Component {
     private houseButton: HouseButton;
     @property(BuildingCancel)
     private buildingCancel: BuildingCancel;
+    @property(AssensionButton)
+    private assensionButton: AssensionButton;
 
     start() {
         Manager.onCommand(() => {
@@ -115,6 +118,7 @@ export class ButtonManager extends Component {
         this.cleanButton.lock();
         this.treatButton.lock();
         this.buildingButton.lock();
+        this.assensionButton.lock();
     }
 
     unlock() {
@@ -125,6 +129,7 @@ export class ButtonManager extends Component {
         this.cleanButton.unlock();
         this.treatButton.unlock();
         this.buildingButton.unlock();
+        this.assensionButton.unlock();
     }
 
     updateAvailable(){
@@ -135,5 +140,6 @@ export class ButtonManager extends Component {
         this.foodButton.isAvailable();
         this.treatButton.isAvailable();
         this.buildingButton.isAvailable();
+        this.assensionButton.isAvailable();
     }
 }

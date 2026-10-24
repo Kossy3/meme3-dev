@@ -55,6 +55,14 @@ export class MemeData {
         this.__eventTarget.emit('horner');
     }
 
+    assension() {
+        this.__eventTarget.emit('assension');
+    }
+
+    onAssension(callback: () => void) {
+        this.__eventTarget.on('assension', callback);
+    }
+
     onDead(callback: () => void) {
         this.__eventTarget.on('dead', () => {
             callback();

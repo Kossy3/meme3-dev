@@ -1,4 +1,4 @@
-import { _decorator, Component, Node, Vec3, math, log, Button, tween, SpriteFrame, Sprite } from 'cc';
+import { _decorator, Component, Node, Vec3, math, log, Tween, Button, tween, SpriteFrame, Sprite } from 'cc';
 const { ccclass, property } = _decorator;
 import { Manager } from './Manager';
 import { MemeData } from './logic/MemeData';
@@ -40,8 +40,10 @@ export class Meme extends Component {
     private festivalNode: Node;
     @property(Sprite)
     private memeSprite: Sprite;
+    @property(Node)
+    private wing: Node;
     @property([SpriteFrame])
-    private spriteFrames: SpriteFrame[] = [];
+    private spriteFrames: SpriteFrame[] = []
 
     spawn() {
         // 初期位置を楕円内のランダムな位置に設定
@@ -89,9 +91,55 @@ export class Meme extends Component {
         this.__data.onHorner(() => {
             WolfEvent.dropCult(this.node);
         });
-        this.__data.onLeave(() => {
+        this.__data.onAssension(async () => {
+            this.isMigration = true;
+            this.wing.active = true;
+            this.memeSprite.spriteFrame = this.spriteFrames[6]; // 進化後のスプライトに変更
+            // 上昇アニメーション
+            await new Promise((resolve) => {
+                tween(this.node)
+                    .to(1, { position: new Vec3(0, 800, 0).add(this.node.position) }, { easing: 'sineIn' })
+                    .call(() => resolve(null))
+                    .start();
+            });
+            this.node.destroy();
         });
-        this.__data.onDead(() => {
+        this.__data.onLeave(async (hopCount: number = 3) => {
+            const node = this.node;
+            if (!node || !node.isValid) return;
+            this.stopWork = true;
+        
+            const direction = (Math.random() < 0.5 ? -1 : 1);
+            const base = node.position.clone();
+            const hopHeight = 40;
+        
+            // Tween を開始して完了時に resolve する
+            const play = (t: Tween) =>
+                new Promise<void>((resolve) => t.call(() => resolve()).start());
+        
+            // --- 1. その場でぴょんぴょん ---
+            for (let i = 0; i < hopCount; i++) {
+                await play(
+                    tween(node)
+                        .to(0.12, { position: new Vec3(base.x, base.y + hopHeight, base.z) }, { easing: 'quadOut' })
+                        .to(0.12, { position: new Vec3(base.x, base.y, base.z) }, { easing: 'quadIn' })
+                );
+                if (!node.isValid) return;
+            }
+        
+            // --- 2. 画面外（x = ±400）へ逃げる ---
+            // 進行方向を向かせたい場合は、スプライトの向きに合わせて次の行を有効化
+            // node.setScale(new Vec3(Math.abs(node.scale.x) * direction, node.scale.y, node.scale.z));
+            await play(
+                tween(node).to(0.4, { position: new Vec3(800 * direction, base.y, base.z) }, { easing: 'sineIn' })
+            );
+        
+            // --- 3. 破棄 ---
+            if (node.isValid) node.destroy();
+        });
+        this.__data.onDead(async () => {
+            await this.dead();
+            this.node.destroy();
         });
         if (this.__data.growth == 0) {
             BubbleManager.bubbling(this.node.worldPosition, 5, 2, "up");
