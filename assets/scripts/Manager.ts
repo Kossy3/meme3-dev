@@ -361,7 +361,7 @@ export class Manager {
     }
 
     private static __checkMagic() {
-        if (this.__data.steps >= 1) {
+        if (this.__data.steps >= 100) {
             this.__data.magic = true;
         }
         if (this.__data.cult >= 1000) {
