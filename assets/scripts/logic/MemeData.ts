@@ -61,6 +61,16 @@ export class MemeData {
         });
     }
 
+    onLeave(callback: () => void) {
+        this.__eventTarget.on('leave', () => {
+            callback();
+        });
+    }
+
+    leave() {
+        this.__eventTarget.emit('leave');
+    }
+
     dead() {
         this.__eventTarget.emit('dead');
     }

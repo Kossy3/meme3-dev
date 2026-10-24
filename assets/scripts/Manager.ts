@@ -316,12 +316,8 @@ export class Manager {
 
     private static __eat() {
         this.__resetPriority();
-        const sortedMemes =  this.__data.memes.sort((memeA, memeB) => memeA.priority - memeB.priority);
+        const sortedMemes =  this.__activeMemes.sort((memeA, memeB) => memeA.priority - memeB.priority);
         for (let meme of sortedMemes) {
-            // 死亡、脱走しためぇめぇをスキップ
-            if (meme.state === MemeState.DEATH || meme.state === MemeState.LEAVE) {
-                continue;
-            }
             // 食料がない場合は空腹度を減らす
             if (this.__data.food + this.__data.rottenFood <= 0) {
                 meme.hunger = Math.max(0, meme.hunger - 1);

@@ -89,6 +89,10 @@ export class Meme extends Component {
         this.__data.onHorner(() => {
             WolfEvent.dropCult(this.node);
         });
+        this.__data.onLeave(() => {
+        });
+        this.__data.onDead(() => {
+        });
         if (this.__data.growth == 0) {
             BubbleManager.bubbling(this.node.worldPosition, 5, 2, "up");
         }
@@ -141,13 +145,6 @@ export class Meme extends Component {
 
     update(deltaTime: number) {
         if (!this.__data) return;
-
-        // 死亡・離脱処理
-        if (this.__data.state === MemeState.DEATH || this.__data.state === MemeState.LEAVE) {
-            this.node.destroy();
-            log("めぇめぇが死亡または離脱しました");
-            return;
-        }
 
         if (this.isMigration) {
             return; // 移動中は他の処理をスキップ

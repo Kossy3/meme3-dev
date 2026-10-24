@@ -258,6 +258,7 @@ export class WolfEvent extends Component {
                     WolfEvent.dropMeet(wolf);
                     wolf.destroy();
                     sord.destroy();
+                    Manager.killWolf();
                     resolve();
                 })
                 .start();
