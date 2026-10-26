@@ -1,10 +1,15 @@
-import { _decorator, Component, Node, Sprite, log, ProgressBar, Color} from 'cc';
+import { _decorator, Component, SpriteFrame, Sprite, log, ProgressBar, Color, NodePool, Node} from 'cc';
 const { ccclass, property } = _decorator;
 import { Manager } from '../Manager';
 import { BuildingType } from '../logic/BuildingType';
+import { TerrainData, DirtData } from '../logic/TerrainData';
 
 @ccclass('Building')
 export class Building extends Component {
+
+    private __dirtsNodePool: NodePool = new NodePool();
+    private __activeDirts: Node[] = [];
+
     @property(Sprite)
     private tower : Sprite;
     @property(Sprite)
@@ -13,11 +18,13 @@ export class Building extends Component {
     private house : Sprite;
     @property(ProgressBar)
     private progressBar : ProgressBar;
+    @property([SpriteFrame])
+    private dirtFrame : SpriteFrame[] = [];
 
     start() {
-        this.updateBuilding(BuildingType.NONE);
+        this.updateBuilding(Manager.terrain);
         Manager.onNextDay(() => {
-            this.updateBuilding(Manager.terrain.building);
+            this.updateBuilding(Manager.terrain);
             if (Manager.isBuilding) {
                 this.showProgress();
             } else {
@@ -38,7 +45,37 @@ export class Building extends Component {
         }
     }
 
-    updateBuilding(type: BuildingType) {
+    updateDirt(dirts: DirtData[]) {
+        this.resetDirt()
+        log(dirts);
+        for(let dirt of dirts) {
+            this.spawnDirt(dirt);
+        }
+    }
+
+    private resetDirt() {
+        for (let dirtNode of this.__activeDirts) {
+            this.__dirtsNodePool.put(dirtNode);
+        }
+        this.__activeDirts = [];
+    }
+
+    private spawnDirt(data: DirtData) {
+        let dirtNode = this.__dirtsNodePool.get();
+        if (!dirtNode) {
+            dirtNode = new Node();
+            let sprite = dirtNode.addComponent(Sprite);
+            sprite.spriteFrame = this.dirtFrame[data.texture];
+        } 
+        dirtNode.setPosition(data.position);
+        dirtNode.setRotationFromEuler(0, 0, data.rotation);
+        dirtNode.setScale(0.3, 0.3, 1);
+        dirtNode.parent = this.node;
+        this.__activeDirts.push(dirtNode);
+    }
+
+    updateBuilding(TerrainData: TerrainData) {
+        const type = TerrainData.building;
         this.tower.node.active = type === BuildingType.TOWER;
         this.farm.node.active = type === BuildingType.FARM;
         this.house.node.active = type === BuildingType.HOME;
@@ -46,6 +83,7 @@ export class Building extends Component {
             let buildingSprite = this.__getBuildingSprite(type);
             buildingSprite.color = new Color(255, 255, 255, 255);
         }
+        this.updateDirt(TerrainData.dirts);
     }
 
     showProgress() {
