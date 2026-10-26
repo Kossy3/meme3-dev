@@ -27,9 +27,13 @@ export class TerrainData {
     addDirt(number) {
         this.dirt += number;
         const dirtsToAdd = Math.max(0, this.dirt - this.__dirts.length);
+        const addedDirts: DirtData[] = [];
         for (let i = 0; i < dirtsToAdd; i++) {
-            this.__dirts.push(this.getRandomDirt());
+            const newDirt = this.getRandomDirt();
+            addedDirts.push(newDirt);
         }
+        this.__dirts = this.__dirts.concat(addedDirts); 
+        return addedDirts;
     }
 
     get dirts(): DirtData[] {
@@ -56,13 +60,8 @@ export class TerrainData {
 
     clean(number: number = 1) {
         this.dirt = Math.max(-1, this.dirt - number);
-        this.__dirts = this.__dirts.slice(0, Math.max(0, this.__dirts.length - number));
-    }
-
-    removeDirt() {
-        if (this.dirt > 0) {
-            this.dirt--;
-        }
+        const count = Math.min(Math.max(0, number), this.__dirts.length);
+        return this.__dirts.splice(this.__dirts.length - count, count);
     }
 
     json() {

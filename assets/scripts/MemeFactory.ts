@@ -3,13 +3,14 @@ const { ccclass } = _decorator;
 import { MemeData } from './logic/MemeData';
 import { Meme } from './Meme';
 import { Manager } from './Manager';
+import { EventType } from './logic/CommandType';
 
 @ccclass('MemeFactory')
 export class MemeFactory extends Component {
     private memePrefab: Prefab | null = null;
     onLoad() {
         this.memePrefab = resources.get('prefab/meme6', Prefab);
-        Manager.onMemeCreated(this.createMeme.bind(this));
+        Manager.on(EventType.MEME_CREATED, this.createMeme.bind(this));
     }
 
     createMeme(memeData: MemeData){

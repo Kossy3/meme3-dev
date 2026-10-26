@@ -4,6 +4,7 @@ import { MemeData } from './logic/MemeData';
 import { Manager } from './Manager';
 import { AnimationAsync } from './utils/AnimationAsync';
 import { WolfMenu } from './ui/wolf/WolfMenu';
+import { EventType } from './logic/CommandType';
 
 @ccclass('WolfEvent')
 export class WolfEvent extends Component {
@@ -48,8 +49,8 @@ export class WolfEvent extends Component {
         );
         this.wolfmenu.onSacrifice(this.sacrifice.bind(this));
         this.wolfmenu.onGodhand(this.godhand.bind(this));
-        Manager.onWolf(this.wolfevent.bind(this));
-        Manager.onBattle(this.battle.bind(this));
+        Manager.on(EventType.WOLF, this.wolfevent.bind(this));
+        Manager.on(EventType.BATTLE, this.battle.bind(this));
     }
 
     async wolfevent(wolfnum: number) {

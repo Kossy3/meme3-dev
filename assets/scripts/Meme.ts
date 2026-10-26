@@ -7,6 +7,7 @@ import { TreatmentManager } from './TreatmentManager';
 import {EatButton} from './ui/EatButton';
 import { WolfEvent } from './WolfEvent';
 import { BubbleManager } from './BubbleManager';
+import { EventType } from './logic/CommandType';
 
 @ccclass('Meme')
 export class Meme extends Component {
@@ -65,7 +66,7 @@ export class Meme extends Component {
             this.isMigration = false;
             this.button.interactable = true;
         });
-        Manager.onEvent(() => {
+        Manager.on(EventType.BEGIN_EVENT, () => {
             if (!this.button) return;
             this.button.interactable = false;
             this.radiusX = 250;
@@ -74,7 +75,7 @@ export class Meme extends Component {
             this.setNewTarget();
             this.moveSpeed = 200;
         });
-        Manager.onFinEvent(() => {
+        Manager.on(EventType.FIN_EVENT, () => {
             if (!this.button) return;
             this.button.interactable = true;
             this.radiusX = 500;

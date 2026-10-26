@@ -2340,20 +2340,6 @@
     "progressBar": {
       "__id__": 59
     },
-    "dirtFrame": [
-      {
-        "__uuid__": "a1d6bb0e-18a4-4314-8754-32adf2cf630b@f9941",
-        "__expectedType__": "cc.SpriteFrame"
-      },
-      {
-        "__uuid__": "27f6ed56-b9cf-4cdc-bec3-1ac1c100ee09@f9941",
-        "__expectedType__": "cc.SpriteFrame"
-      },
-      {
-        "__uuid__": "10b6b105-b60a-43bb-895c-9db4af32d28d@f9941",
-        "__expectedType__": "cc.SpriteFrame"
-      }
-    ],
     "_id": "1aJRSzj/tPW4mFDs6H1VWr"
   },
   {
@@ -3144,20 +3130,6 @@
     "progressBar": {
       "__id__": 81
     },
-    "dirtFrame": [
-      {
-        "__uuid__": "a1d6bb0e-18a4-4314-8754-32adf2cf630b@f9941",
-        "__expectedType__": "cc.SpriteFrame"
-      },
-      {
-        "__uuid__": "27f6ed56-b9cf-4cdc-bec3-1ac1c100ee09@f9941",
-        "__expectedType__": "cc.SpriteFrame"
-      },
-      {
-        "__uuid__": "10b6b105-b60a-43bb-895c-9db4af32d28d@f9941",
-        "__expectedType__": "cc.SpriteFrame"
-      }
-    ],
     "_id": "1cPgbp1opJO4gHaM0inXoN"
   },
   {

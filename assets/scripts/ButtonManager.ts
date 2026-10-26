@@ -13,6 +13,7 @@ import { TowerButton } from './ui/building/TowerButton';
 import { HouseButton } from './ui/building/HouseButton';
 import { BuildingCancel } from './ui/building/BuildingCancel';
 import { AssensionButton } from './ui/AssensionButton';
+import { EventType } from './logic/CommandType';
 
 @ccclass('ButtonManager')
 export class ButtonManager extends Component {
@@ -42,18 +43,18 @@ export class ButtonManager extends Component {
     private assensionButton: AssensionButton;
 
     start() {
-        Manager.onCommand(() => {
+        Manager.on(EventType.COMMAND, () => {
             this.lock();
         });
-        Manager.onNextDay(() => {
+        Manager.on(EventType.NEXT_DAY, () => {
             this.unlock();
             this.updateAvailable();
         });
-        Manager.onEvent(() => {
+        Manager.on(EventType.BEGIN_EVENT, () => {
             this.lock();
             this.hide();
         });
-        Manager.onFinEvent(() => {
+        Manager.on(EventType.FIN_EVENT, () => {
             this.unlock();
             this.updateAvailable();
         });

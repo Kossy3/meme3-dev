@@ -5,42 +5,18 @@ import { TerrainData } from './logic/TerrainData';
 import { MemeData , MAX_HUNGER, DANGER_HUNGER} from './logic/MemeData';
 import { MemeState } from './logic/MemeState';
 import { BuildingType } from './logic/BuildingType';
+import { EventType } from './logic/CommandType';
 
 export class Manager {
     private static __data: GameData = new GameData();
     private static __eventTarget: EventTarget = new EventTarget();
 
-    public static onMemeCreated(callback: (memeData: MemeData) => void) {
-        this.__eventTarget.on('memeCreated', callback);
-        this.__eventTarget.on('memeCreated', ()=>{log('onMemeCreated called')});
-    }
-
-    public static onCommand(callback: () => void) {
-        this.__eventTarget.on('command', callback);
-    }
-
-    public static onNextDay(callback: () => void) {
-        this.__eventTarget.on('nextDay', callback);
-    }
-
-    public static onFinEvent(callback: () => void) {
-        this.__eventTarget.on('finEvent', callback);
-    }
-
-    public static onWolf(callback: () => void) {
-        this.__eventTarget.on('wolf', callback);
-    }
-
-    public static onEvent(callback: () => void) {
-        this.__eventTarget.on('event', callback);
+    public static on(event: EventType, callback: any) {
+        this.__eventTarget.on(event, callback);
     }
 
     public static finEvent() {
-        this.__eventTarget.emit('finEvent');
-    }
-
-    public static onBattle(callback: () => void) {
-        this.__eventTarget.on('battle', callback);
+        this.__eventTarget.emit(EventType.FIN_EVENT);
     }
 
     public static canGo(): boolean {
@@ -48,7 +24,7 @@ export class Manager {
     }
 
     public static go() {
-        this.__eventTarget.emit('command');
+        this.__eventTarget.emit(EventType.COMMAND);
         this.__data.steps += 1;
         this.__data.food -= this.__data.steps + 10;
         if (this.__data.steps >= this.__data.terrain.length) {
@@ -66,7 +42,7 @@ export class Manager {
     }
 
     public static back() {
-        this.__eventTarget.emit('command');
+        this.__eventTarget.emit(EventType.COMMAND);
         if (this.__data.steps <= 0) {
             return;
         }
@@ -99,7 +75,7 @@ export class Manager {
     }
 
     public static addFood() {
-        this.__eventTarget.emit('command');
+        this.__eventTarget.emit(EventType.COMMAND);
         const memeCount = this.memesCount;
         const workP = Math.sqrt(this.__data.cult*10)/memeCount;
         for (let i = 0; i < this.workersCount; i++) {
@@ -127,8 +103,9 @@ export class Manager {
     }
 
     public static clean() {
-        this.__eventTarget.emit('command');
-        this.__data.terrain[this.__data.steps].clean(5);
+        this.__eventTarget.emit(EventType.COMMAND);
+        const removedDirts = this.__data.terrain[this.__data.steps].clean(5);
+        this.__eventTarget.emit(EventType.CLEAN, removedDirts);
     }
 
     public static addRottenFood(amount: number) {
@@ -188,7 +165,7 @@ export class Manager {
     }
 
     public static festival() {
-        this.__eventTarget.emit('command');
+        this.__eventTarget.emit(EventType.COMMAND);
         this.__resetPriority();
         // 余剰の食料を消費し、はたらくめぇめぇ一定数を一時的に労働不能にすることでおまつり（繁殖）できる※2
         // 余剰食糧の量に応じて繁殖に参加するめぇめぇの数が増えるmin(はたらくめぇめぇ数,（余剰食糧 - 群れの絶対数))/2頭)。こまめに繁殖するより一括で繁殖させた方が効率が良い。
@@ -277,7 +254,7 @@ export class Manager {
             battleResult.push({event: "win", meme: battleMemesorted[memeIndex], wolf:wolfIndex, memeHp: memeHp, wolfHp: wolfHp});
         }
 
-        this.__eventTarget.emit('battle', battleResult);
+        this.__eventTarget.emit(EventType.BATTLE, battleResult);
     }
 
     public static get canFestival(): boolean {
@@ -285,7 +262,7 @@ export class Manager {
     }
 
     public static treat() {
-        this.__eventTarget.emit('command');
+        this.__eventTarget.emit(EventType.COMMAND);
         // 治療コマンドは、すべてのスクレイピー状態のめぇめぇを治療する。
         // cult値を治療数-3消費する
         const scrapieMemes = this.__data.memes.filter(m => m.state === MemeState.SCRAPIE)
@@ -304,7 +281,7 @@ export class Manager {
 
 
     public static build(buildingType: BuildingType) {
-        this.__eventTarget.emit('command');
+        this.__eventTarget.emit(EventType.COMMAND);
         if (!this.canBuild) {
             return;
         }
@@ -398,7 +375,7 @@ export class Manager {
             while (childSeed < rate) {
                 const child = new MemeData();
                 this.__data.memes.push(child);
-                this.__eventTarget.emit('memeCreated', child);
+                this.__eventTarget.emit(EventType.MEME_CREATED, child);
                 rate /= 3;
                 childCount++;
             }
@@ -435,7 +412,8 @@ export class Manager {
     }
 
     private static __polute(number: number = 1) {
-        this.__data.terrain[this.__data.steps].addDirt(number);
+        const addedDirts = this.__data.terrain[this.__data.steps].addDirt(number);
+        this.__eventTarget.emit(EventType.POLUTE, addedDirts);
     }
 
     private static __checkInfect() {
@@ -479,18 +457,16 @@ export class Manager {
         const foodEventRate = 0;
         let p = Math.random();
         if (p < wolfEventRate) {
-            this.__eventTarget.emit('wolf', Math.floor(Math.random()* 5) + 1);
-            this.__eventTarget.emit('event');
+            this.__eventTarget.emit(EventType.WOLF, Math.floor(Math.random()* 5) + 1);
+            this.__eventTarget.emit(EventType.BEGIN_EVENT);
         }
         p -= wolfEventRate;
         if (p < merchantEventRate) {
-            this.__eventTarget.emit('merchant');
-            this.__eventTarget.emit('event');
+            null;
         }
         p -= merchantEventRate;
         if (p < foodEventRate) {
-            this.__eventTarget.emit('food');
-            this.__eventTarget.emit('event');
+            null
         }
     }
 
@@ -507,7 +483,7 @@ export class Manager {
         this.__growth();
         this.__polute();
         this.__checkMagic();
-        this.__eventTarget.emit('nextDay');
+        this.__eventTarget.emit(EventType.NEXT_DAY);
         this.__checkEvent();
     }
 
