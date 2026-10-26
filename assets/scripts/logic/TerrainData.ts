@@ -20,13 +20,14 @@ export class TerrainData {
     private __dirts: DirtData[] = [];
 
     // 楕円の範囲設定
-    private radiusX: number = 500;
-    private radiusY: number = 180;
-    private center: Vec3 = new Vec3(0, 0, 0); // 楕円の中心座標
+    private radiusX: number = 360;
+    private radiusY: number = 50;
+    private center: Vec3 = new Vec3(0, 30, 0); // 楕円の中心座標
 
-    addDirt(number: number = 1) {
+    addDirt(number) {
         this.dirt += number;
-        for (let i = 0; i < number; i++) {
+        const dirtsToAdd = Math.max(0, this.dirt - this.__dirts.length);
+        for (let i = 0; i < dirtsToAdd; i++) {
             this.__dirts.push(this.getRandomDirt());
         }
     }
@@ -54,7 +55,7 @@ export class TerrainData {
     }
 
     clean(number: number = 1) {
-        this.dirt = Math.max(0, this.dirt - number);
+        this.dirt = Math.max(-1, this.dirt - number);
         this.__dirts = this.__dirts.slice(0, Math.max(0, this.__dirts.length - number));
     }
 

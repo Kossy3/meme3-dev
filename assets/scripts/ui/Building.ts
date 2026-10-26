@@ -46,8 +46,8 @@ export class Building extends Component {
     }
 
     updateDirt(dirts: DirtData[]) {
-        this.resetDirt()
         log(dirts);
+        this.resetDirt()
         for(let dirt of dirts) {
             this.spawnDirt(dirt);
         }
@@ -65,11 +65,14 @@ export class Building extends Component {
         if (!dirtNode) {
             dirtNode = new Node();
             let sprite = dirtNode.addComponent(Sprite);
-            sprite.spriteFrame = this.dirtFrame[data.texture];
+            // 半透明に
+            sprite.color = new Color(255, 255, 255, 100);
         } 
         dirtNode.setPosition(data.position);
         dirtNode.setRotationFromEuler(0, 0, data.rotation);
         dirtNode.setScale(0.3, 0.3, 1);
+        dirtNode.getComponent(Sprite).spriteFrame = this.dirtFrame[data.texture];
+        dirtNode.layer = this.node.layer;
         dirtNode.parent = this.node;
         this.__activeDirts.push(dirtNode);
     }
