@@ -29,11 +29,11 @@ export class WolfEvent extends Component {
     private punchNode: Node;
 
     private wolfpos: Vec3[] = [
-        new Vec3(100, -250, 0),
-        new Vec3(200, -90, 0),
-        new Vec3(300, -250, 0),
-        new Vec3(400, -90, 0),
-        new Vec3(500, -250, 0)
+        new Vec3(100, -50, 0),
+        new Vec3(200, -150, 0),
+        new Vec3(300, -50, 0),
+        new Vec3(400, -150, 0),
+        new Vec3(500, -50, 0)
     ];
     onLoad() {
         WolfEvent._instance = this;

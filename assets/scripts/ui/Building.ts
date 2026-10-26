@@ -57,10 +57,13 @@ export class Building extends Component {
     }
 
     updateDirt(dirts: DirtData[]) {
-        this.cleanupDirt(Array.from(this.__activeDirts.keys()), false);
         for(let dirt of dirts) {
-            this.spawnDirt(dirt, false);
+            if (!this.__activeDirts.has(dirt)) {
+                this.spawnDirt(dirt, false);
+            }
         }
+        const removeDirts = Array.from(this.__activeDirts.keys()).filter(dirt => dirts.indexOf(dirt) === -1);
+        this.cleanupDirt(removeDirts, false);
     }
 
     async cleanupDirt(dirts: DirtData[], animate: boolean = true) {
