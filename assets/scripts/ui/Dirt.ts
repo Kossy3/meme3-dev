@@ -31,7 +31,7 @@ export class Dirt extends Component {
     async cleanupAnimate() {
         await new Promise<void>((resolve) => {
             tween(this.dirtOpacity)
-                .to(0.5, { opacity: 0 })
+                .to(2, { opacity: 0 })
                 .call(() => {
                     resolve();
                 })

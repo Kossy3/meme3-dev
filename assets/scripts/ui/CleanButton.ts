@@ -1,7 +1,8 @@
-import { _decorator, Component, Node, Button, log } from 'cc';
+import { _decorator, Component, Node, Button, log, tween, Vec3 } from 'cc';
 const { ccclass, property } = _decorator;
 import { Manager } from '../Manager';
 import { AnimationAsync } from '../utils/AnimationAsync';
+import { EventType } from '../logic/CommandType';
 
 @ccclass('CleanButton')
 export class CleanButton extends Component {
@@ -10,13 +11,37 @@ export class CleanButton extends Component {
     private button: Button;
     @property(AnimationAsync)
     private animation: AnimationAsync;
+    @property(Node)
+    private wiper: Node;
+    private wiperAnimation: AnimationAsync;
 
     private __available: boolean = false;
     start() {
         this.button = this.getComponent(Button);
         log('Button');
         this.button.clickEvents.push(this.createHandler());
+        Manager.on(EventType.CLEAN, async () => {
+            await this.clean();
+            Manager.nextDay();
+        });
+        this.wiperAnimation = this.wiper.getComponent(AnimationAsync);
+        this.wiper.active = false;
     }
+
+    async clean() {
+        this.wiper.active = true;
+        this.wiper.setPosition(700, 0, 0);
+        await new Promise<void>((resolve) => {
+            tween(this.wiper)
+                .to(2, { position: new Vec3(-700, 0, 0) })
+                .call(() => {
+                    resolve();
+                })
+                .start();
+        });
+        this.wiper.active = false;
+    }
+
 
     createHandler() {
         const eventHandler = new Button.EventHandler();
@@ -29,7 +54,6 @@ export class CleanButton extends Component {
     onClick() {
         log('おそうじ');
         Manager.clean();
-        Manager.nextDay();
     }
 
     lock() {
