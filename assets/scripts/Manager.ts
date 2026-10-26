@@ -128,7 +128,7 @@ export class Manager {
 
     public static clean() {
         this.__eventTarget.emit('command');
-        this.__data.terrain[this.__data.steps].dirt = Math.max(0, this.__data.terrain[this.__data.steps].dirt - 5);
+        this.__data.terrain[this.__data.steps].clean(5);
     }
 
     public static addRottenFood(amount: number) {
@@ -435,7 +435,7 @@ export class Manager {
     }
 
     private static __polute(number: number = 1) {
-        this.__data.terrain[this.__data.steps].dirt += number;
+        this.__data.terrain[this.__data.steps].addDirt(number);
     }
 
     private static __checkInfect() {
