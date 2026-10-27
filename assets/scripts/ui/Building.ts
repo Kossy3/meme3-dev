@@ -34,6 +34,10 @@ export class Building extends Component {
                 this.progressBar.node.active = false;
             }
         });
+        Manager.on(EventType.BUILD, () => {
+            this.updateBuilding(Manager.terrain);
+            this.showProgress();
+        });
         Manager.on(EventType.POLUTE, (data: DirtData[]) => {
             for(let dirt of data) {
                 this.spawnDirt(dirt, true);

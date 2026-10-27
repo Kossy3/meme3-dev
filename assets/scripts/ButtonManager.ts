@@ -14,6 +14,7 @@ import { HouseButton } from './ui/building/HouseButton';
 import { BuildingCancel } from './ui/building/BuildingCancel';
 import { AssensionButton } from './ui/AssensionButton';
 import { EventType } from './logic/CommandType';
+import { NextDayButton } from './ui/NextDayButton';
 
 @ccclass('ButtonManager')
 export class ButtonManager extends Component {
@@ -41,6 +42,8 @@ export class ButtonManager extends Component {
     private buildingCancel: BuildingCancel;
     @property(AssensionButton)
     private assensionButton: AssensionButton;
+    @property(NextDayButton)
+    private nextDayButton: NextDayButton;
 
     start() {
         Manager.on(EventType.COMMAND, () => {
@@ -102,6 +105,7 @@ export class ButtonManager extends Component {
     }
 
     hide() {
+        this.nextDayButton.hide();
         this.buildingButton.hide();
         this.foodButton.hide();
         this.festivalButton.hide();
@@ -112,6 +116,7 @@ export class ButtonManager extends Component {
     }
 
     lock() {
+        this.nextDayButton.lock();
         this.foodButton.lock();
         this.festivalButton.lock();
         this.goButton.lock();
@@ -123,6 +128,7 @@ export class ButtonManager extends Component {
     }
 
     unlock() {
+        this.nextDayButton.unlock();
         this.foodButton.unlock();
         this.festivalButton.unlock();
         this.goButton.unlock();
@@ -134,6 +140,7 @@ export class ButtonManager extends Component {
     }
 
     updateAvailable(){
+        this.nextDayButton.isAvailable();
         this.festivalButton.isAvailable();
         this.backButton.isAvailable();
         this.goButton.isAvailable();

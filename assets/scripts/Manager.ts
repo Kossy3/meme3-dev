@@ -291,6 +291,7 @@ export class Manager {
         for (let meme of this.__workers) {
             meme.state = MemeState.BUILDING;
         }
+        this.__eventTarget.emit(EventType.BUILD);
     }
 
     public static buildCost(buildingType: BuildingType): number {
@@ -470,6 +471,11 @@ export class Manager {
         }
     }
 
+    public static completeNextDay() {
+        this.__eventTarget.emit(EventType.NEXT_DAY);
+        this.__checkEvent();
+    }
+
     public static nextDay() {
         this.__data.food += 2;
         this.__data.day += 1;
@@ -483,8 +489,7 @@ export class Manager {
         this.__growth();
         this.__polute();
         this.__checkMagic();
-        this.__eventTarget.emit(EventType.NEXT_DAY);
-        this.__checkEvent();
+        this.__eventTarget.emit(EventType.NEXT_DAY_EFFECT);
     }
 
 
