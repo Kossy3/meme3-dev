@@ -345,7 +345,7 @@ export class Manager {
             if (meme.hunger/DANGER_HUNGER < Math.random() ) {
                 meme.state = MemeState.DEATH;
                 log("めぇめぇが餓死しました。");
-                meme.emit(MemeEvent.DEAD);
+                meme.emit(MemeEvent.HUNGER_DEAD);
             }
         }
     }

@@ -1,7 +1,7 @@
 import { _decorator, Component, Node, Vec3, math, log, Tween, Button, tween, SpriteFrame, Sprite } from 'cc';
 const { ccclass, property } = _decorator;
 import { Manager } from './Manager';
-import { MemeData, MemeEvent } from './logic/MemeData';
+import { MemeData, MemeEvent, DANGER_HUNGER } from './logic/MemeData';
 import { MemeState } from './logic/MemeState';
 import { TreatmentManager } from './TreatmentManager';
 import {EatButton} from './ui/EatButton';
@@ -47,7 +47,10 @@ export class Meme extends Component {
     @property(Node)
     private wing: Node;
     @property([SpriteFrame])
-    private spriteFrames: SpriteFrame[] = []
+    private spriteFrames: SpriteFrame[] = [];
+    @property(Node)
+    private hungry: Node;
+
 
     spawn() {
         // 初期位置を楕円内のランダムな位置に設定
@@ -159,6 +162,11 @@ export class Meme extends Component {
             await this.dead();
             this.node.destroy();
         });
+        this.__data.on(MemeEvent.HUNGER_DEAD, async () => {
+            this.deathCount ++;
+            log("死亡処理の回数: " + this.deathCount);
+            await this.hungerDead();
+        });
         if (this.__data.growth == 0) {
             BubbleManager.bubbling(this.node.worldPosition, 5, 2, "up");
         }
@@ -171,9 +179,22 @@ export class Meme extends Component {
     async dead() {
         // yを縮小
         const beforeScale = this.node.scale.clone();
-        tween(this.node)
-            .to(0.2, { scale: new Vec3(beforeScale.x, 0, 1) })
-            .start();
+        await new Promise<void>((resolve) => {
+            tween(this.node)
+                .to(0.2, { scale: new Vec3(beforeScale.x, 0, 1) })
+                .call(() => resolve())
+                .start();
+        });
+    }
+
+    async hungerDead() {
+        await new Promise<void>((resolve) => {
+            tween(this.spriteNode)
+                .to(0.2, { eulerAngles: new Vec3(0, 0, 180) })
+                .call(() => resolve())
+                .start();
+        });
+        await this.dead();
     }
 
     createHandler() {
@@ -223,6 +244,7 @@ export class Meme extends Component {
         this.metNode.active = this.__data.state === MemeState.BUILDING;
         this.virusNode.active = this.__data.state === MemeState.SCRAPIE;
         this.festivalNode.active = this.__data.state === MemeState.FESTIVAL;
+        this.hungry.active = this.__data.hunger < DANGER_HUNGER;
         this.memeSprite.spriteFrame = this.spriteFrames[Math.min(5, this.__data.growth)];
         this.updateRandomWalk(deltaTime);
     }

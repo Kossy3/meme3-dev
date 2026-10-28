@@ -13,6 +13,7 @@ export enum MemeEvent {
     HORNER,
     ASSENSION,
     DEAD,
+    HUNGER_DEAD,
     LEAVE,
     EAT,
     FIND_FOOD,
