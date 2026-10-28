@@ -11,4 +11,5 @@ export enum EventType {
     POLUTE,
     BUILD,
     EAT,
+    BUILD_TOWER,
 }

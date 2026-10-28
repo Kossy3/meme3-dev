@@ -39,11 +39,10 @@ export class SacrificeButton extends Component {
         this.eventTarget.emit('select');
     }
 
-    show() {
+    show(number: number) {
         this.button.interactable = true;
         this.animation.playAsync("看板出現");
-        const day = Math.floor(Manager.buildCost(BuildingType.TOWER) / Manager.workersCount);
-        this.label.string = `${day}ひき`;
+        this.label.string = `${number}`;
     }
 
     hide() {

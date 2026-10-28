@@ -2,13 +2,14 @@ import { _decorator, Component, EventTarget } from 'cc';
 const { ccclass, property } = _decorator;
 import { Manager } from '../../Manager';
 import { SacrificeButton } from './SacrificeButton';
+import { BattleButton } from './BattleButton';
 
 @ccclass('WolfMenu')
 export class WolfMenu extends Component {
     @property(SacrificeButton) 
     private sacrificeButton: SacrificeButton;
-    @property(SacrificeButton)
-    private battleButton: SacrificeButton;
+    @property(BattleButton)
+    private battleButton: BattleButton;
     @property(SacrificeButton)
     private godhandButton: SacrificeButton;
     private event = new EventTarget();
@@ -41,10 +42,10 @@ export class WolfMenu extends Component {
     }
 
     showWolfMenu(wolfnum: number) {
-        this.sacrificeButton.show();
+        this.sacrificeButton.show(wolfnum);
         this.battleButton.show();
         if (wolfnum + 2 <= Manager.cult) {
-            this.godhandButton.show();
+            this.godhandButton.show(wolfnum);
         }
     }
     

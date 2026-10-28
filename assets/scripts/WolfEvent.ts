@@ -52,6 +52,20 @@ export class WolfEvent extends Component {
         this.wolfmenu.onGodhand(this.godhand.bind(this));
         Manager.on(EventType.WOLF, this.wolfevent.bind(this));
         Manager.on(EventType.BATTLE, this.battle.bind(this));
+        Manager.on(EventType.BUILD_TOWER, async (reward: number) => {
+            const effect = async(reward: number) => {
+                await WolfEvent.dropCult(this.node);
+                Manager.addCult(reward);
+            }
+            for (let i = 0; i < Math.min(10, reward); i++) {
+                effect(1);
+                await this.wait(100);
+                
+            }
+            if (reward > 10) {
+                effect(reward - 10);
+            } 
+        });
     }
 
     async wolfevent(wolfnum: number) {

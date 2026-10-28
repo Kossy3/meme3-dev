@@ -1,9 +1,8 @@
-import { _decorator, Component, Node, Button, log } from 'cc';
+import { _decorator, Component, Node, Button, log, Label } from 'cc';
 const { ccclass, property } = _decorator;
 import { Manager } from '../Manager';
 import { AnimationAsync } from '../utils/AnimationAsync';
-import { EventType } from '../logic/CommandType';
-import { FoodType } from '../logic/FoodType';
+import { BuildingType } from '../logic/BuildingType';
 import { MemeData, MemeEvent } from '../logic/MemeData';
 
 @ccclass('FoodButton')
@@ -13,6 +12,10 @@ export class FoodButton extends Component {
     private button: Button;
     @property(AnimationAsync)
     private animation: AnimationAsync;
+    @property(Node)
+    private cabbege: Node;
+    @property(Label)
+    private label: Label;
 
     private __available: boolean = false;
 
@@ -54,6 +57,13 @@ export class FoodButton extends Component {
     isAvailable() {
         const beforeState = this.__available;
         const afterState = Manager.workersCount > 0;
+        if (Manager.terrain.building === BuildingType.FARM) {
+            this.label.string = `しゅうかく`;
+            this.cabbege.active = true;
+        } else {
+            this.label.string = `さがす`;
+            this.cabbege.active = false;
+        }
         log("引っ込み")
         if (beforeState !== afterState) {
             this.__available = afterState;

@@ -79,6 +79,10 @@ export class Manager {
         this.__data.addFood(type, amount);
     }
 
+    public static addCult(amount: number) {
+        this.__data.cult += amount;
+    }
+
     public static findFood() {
         this.__eventTarget.emit(EventType.COMMAND);
         const memeCount = this.memesCount;
@@ -182,7 +186,8 @@ export class Manager {
         // 余剰食糧の量に応じて繁殖に参加するめぇめぇの数が増えるmin(はたらくめぇめぇ数,（余剰食糧 - 群れの絶対数))/2頭)。こまめに繁殖するより一括で繁殖させた方が効率が良い。
         // 繁殖に参加するめぇめぇは3-5ターン（繁殖コマンドを使用した土地依存）労働不能状態になり、ターン経過後参加しためぇめぇ数/2*1.3の子供が生まれる。親は労働不能状態が解除される。
         let festMemeCount = Math.min(this.workersCount, Math.floor((this.__data.foodCount - this.memesCount)/2));
-        const festPeriod = 3 + Math.floor(Math.random()*3);
+        const basePeriod = (this.terrain.building === BuildingType.HOME ? 1 : 3);
+        const festPeriod = basePeriod + Math.floor(Math.random()*3);
         log(`祭りに参加するめぇめぇ数:${festMemeCount}、祭り期間:${festPeriod}ターン`);
         const sortedMemes =  this.__workers.sort((memeA, memeB) => memeA.priority - memeB.priority);
         for (let meme of sortedMemes) {
@@ -219,7 +224,7 @@ export class Manager {
                     return memeA.growth - memeB.growth;
                 }
         });
-        const memePower = Math.max(10, this.__data.cult);
+        const memePower = Math.max(10, this.__data.cult * (this.terrain.building === BuildingType.HOME ? 1.5 : 1));
         const wolfPower = Math.max(3, this.__data.steps);
         const battleResult = [];
         let wolfHp = 10;
@@ -325,7 +330,7 @@ export class Manager {
             const meme = sortedMemes[i];
             const food = eatedFood[i];
             // 食料がない場合は空腹度を減らす
-            if (!food) {
+            if (eatedFood.length <= i) {
                 meme.hunger = Math.max(0, meme.hunger - 1);
                 continue;
             }
@@ -409,7 +414,8 @@ export class Manager {
                 this.__data.terrain[this.__data.steps].building = this.__data.building;
                 log(`建物が完成しました。建物タイプ:${this.__data.building}`);
                 if (this.__data.building === BuildingType.TOWER) {
-                    this.__data.cult += this.__data.steps+1;
+                    const reward = this.__data.steps+1;
+                    this.__eventTarget.emit(EventType.BUILD_TOWER, reward);
                 }
                 this.__data.building = BuildingType.NONE;
                 this.__data.buildingCost = 0;
@@ -468,7 +474,7 @@ export class Manager {
         const merchantEventRate = 0;
         // えさ発見イベントの発生率
         const foodEventRate = 0;
-        let p = Math.random() + 1;
+        let p = Math.random();
         if (p < wolfEventRate) {
             this.__eventTarget.emit(EventType.WOLF, Math.floor(Math.random()* 5) + 1);
             this.__eventTarget.emit(EventType.BEGIN_EVENT);
