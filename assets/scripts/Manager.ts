@@ -144,7 +144,7 @@ export class Manager {
     }
 
     public static get memes(): MemeData[] {
-        return this.__data.memes;
+        return this.__activeMemes;
     }
 
     public static get terrain(): TerrainData {
@@ -156,7 +156,7 @@ export class Manager {
     }
 
     private static __resetPriority() {
-        this.__data.memes.map(m => m.resetPriority());
+        this.__activeMemes.map(m => m.resetPriority());
     }
 
     public static canMagic(): boolean {
@@ -320,6 +320,7 @@ export class Manager {
         this.__resetPriority();
         const sortedMemes =  this.__activeMemes.sort((memeA, memeB) => memeA.priority - memeB.priority);
         const eatedFood = this.__data.useFood(sortedMemes.length);
+        log(`めぇめぇ${sortedMemes.length}匹が${eatedFood.length}の食料を食べました。`);
         for (let i = 0; i < sortedMemes.length; i++) {
             const meme = sortedMemes[i];
             const food = eatedFood[i];
@@ -340,9 +341,10 @@ export class Manager {
     }
 
     private static __checkDeath() {
-        for (let meme of this.__data.memes) {
-            if (meme.hunger/DANGER_HUNGER < Math.random()) {
+        for (let meme of this.__activeMemes) {
+            if (meme.hunger/DANGER_HUNGER < Math.random() ) {
                 meme.state = MemeState.DEATH;
+                log("めぇめぇが餓死しました。");
                 meme.emit(MemeEvent.DEAD);
             }
         }
@@ -371,7 +373,7 @@ export class Manager {
 
     private static __checkFest() {
         let parentCount = 0;
-        for (let meme of this.__data.memes.filter(m => m.state === MemeState.FESTIVAL)) {
+        for (let meme of this.__activeMemes.filter(m => m.state === MemeState.FESTIVAL)) {
             meme.festLimit -= 1;
             log(`祭り残り期間:${meme.festLimit}ターン`);
             if (meme.festLimit <= 0) {
@@ -411,7 +413,7 @@ export class Manager {
                 }
                 this.__data.building = BuildingType.NONE;
                 this.__data.buildingCost = 0;
-                for (let meme of this.__data.memes.filter(m => m.state === MemeState.BUILDING)) {
+                for (let meme of this.__activeMemes.filter(m => m.state === MemeState.BUILDING)) {
                     meme.state = MemeState.WORKER;
                 }
             }
@@ -419,7 +421,7 @@ export class Manager {
     }  
 
     private static __growth() {
-        this.__data.memes.map(m => m.growth ++);
+        this.__activeMemes.map(m => m.growth ++);
     }
 
     private static __polute(number: number = 1) {
@@ -434,7 +436,7 @@ export class Manager {
             infectCount ++;
         }
         // 感染者は50%の確率で別の感染者を1人増やす
-        this.__data.memes.map(m => {
+        this.__activeMemes.map(m => {
             if (m.state === MemeState.SCRAPIE && Math.random() < 0.5) {
                 infectCount++;
             }
@@ -442,9 +444,9 @@ export class Manager {
         this.__resetPriority();
 
         // 健康なめぇめぇをランダムに並びカエル
-        const helthyMemes =  this.__data.memes
+        const helthyMemes =  this.__activeMemes
             .sort((memeA, memeB) => memeA.priority - memeB.priority)
-            .filter(m => m.state !== MemeState.SCRAPIE && m.state !== MemeState.DEATH && m.state !== MemeState.LEAVE);
+            .filter(m => m.state !== MemeState.SCRAPIE);
         // 感染者を増やす
         for (let meme of helthyMemes) {
             if (infectCount > 0) {
@@ -456,7 +458,7 @@ export class Manager {
     }
 
     public static get childCount () : number {
-        return this.__data.memes.filter(m => m.growth < 5).length;
+        return this.__activeMemes.filter(m => m.growth < 5).length;
     }
 
     private static __checkEvent() {
@@ -466,7 +468,7 @@ export class Manager {
         const merchantEventRate = 0;
         // えさ発見イベントの発生率
         const foodEventRate = 0;
-        let p = Math.random();
+        let p = Math.random() + 1;
         if (p < wolfEventRate) {
             this.__eventTarget.emit(EventType.WOLF, Math.floor(Math.random()* 5) + 1);
             this.__eventTarget.emit(EventType.BEGIN_EVENT);

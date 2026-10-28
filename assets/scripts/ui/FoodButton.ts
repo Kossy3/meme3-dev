@@ -39,7 +39,7 @@ export class FoodButton extends Component {
         for (const finded of findedFood) {
             finded.finder.emit(MemeEvent.FIND_FOOD, finded);
         }
-        await this.wait(1000);
+        await this.wait(1500);
         Manager.nextDay();
     }
 

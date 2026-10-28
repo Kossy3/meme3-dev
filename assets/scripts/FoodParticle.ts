@@ -64,14 +64,14 @@ export class FoodParticle extends Component {
         return new Promise<void>((resolve) => {
             const from = node.worldPosition.clone();
             // 制御点：中点の上方
-            const ctrl = new Vec3((from.x + to.x) / 2, Math.max(from.y, to.y) + arcHeight, from.z);
+            const ctrl = new Vec3((from.x + to.worldPosition.x) / 2, Math.max(from.y, to.worldPosition.y) + arcHeight, from.z);
     
             const state = { t: 0 };
             tween(state)
                 .to(duration, { t: 1 }, {
                     easing: 'sineIn',
                     onUpdate: () => {
-                        if (!node.isValid) return;
+                        if (!to.isValid) return;
                         const t = state.t;
                         const u = 1 - t;
                         node.setWorldPosition(

@@ -32,6 +32,7 @@ export class Meme extends Component {
     private waitTimer: number = 0;       // 立ち止まりタイマー
     private isMigration: boolean = false;    // 移動中かどうかのフラグ
     private stopWork: boolean = false; // 作業中かどうかのフラグ
+    private deathCount: number = 0; // 死亡処理の回数を追跡する変数
 
     @property(Node)
     private spriteNode: Node;
@@ -104,7 +105,6 @@ export class Meme extends Component {
             }
         });
         this.__data.on(MemeEvent.EAT, async (foodType: FoodType) => {
-            log("EAT EVENT: " + foodType);
             await FoodParticle.getFood(this.node, foodType);
         });
         this.__data.on(MemeEvent.ASSENSION, async () => {
@@ -154,6 +154,8 @@ export class Meme extends Component {
             if (node.isValid) node.destroy();
         });
         this.__data.on(MemeEvent.DEAD, async () => {
+            this.deathCount ++;
+            log("死亡処理の回数: " + this.deathCount);
             await this.dead();
             this.node.destroy();
         });
