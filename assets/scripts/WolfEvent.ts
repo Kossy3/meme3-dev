@@ -5,6 +5,7 @@ import { Manager } from './Manager';
 import { AnimationAsync } from './utils/AnimationAsync';
 import { WolfMenu } from './ui/wolf/WolfMenu';
 import { EventType } from './logic/CommandType';
+import { MemeEvent } from './logic/MemeData';
 
 @ccclass('WolfEvent')
 export class WolfEvent extends Component {
@@ -205,7 +206,7 @@ export class WolfEvent extends Component {
             switch (result.event) {
                 case "start":
                     // 戦うオオカミ、めぇめぇを中央に移動
-                    result.meme.battleStart();
+                    result.meme.emit(MemeEvent.BATTLE_START);
                     this.wolfMoveTo(this.wolfs[result.wolf], new Vec3(50, -90, 0));
                     await this.wait(200);
                     break;

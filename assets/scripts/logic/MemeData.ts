@@ -4,6 +4,20 @@ export const DANGER_HUNGER = 3;
 export const WORKER_GROWTH = 5;
 import { EventTarget, Vec3 } from "cc";
 
+export enum MemeEvent {
+    GO,
+    STOP,
+    BACK,
+    TREAT,
+    BATTLE_START,
+    HORNER,
+    ASSENSION,
+    DEAD,
+    LEAVE,
+    EAT,
+    FIND_FOOD,
+}
+
 export class MemeData {
     growth: number = 0;
     hunger: number = MAX_HUNGER;
@@ -23,64 +37,12 @@ export class MemeData {
         return this.__priority;
     }
 
-    onGo(callback: () => void) {
-        this.__eventTarget.on('go', callback);
+    on(eventType: MemeEvent, callback: any) {
+        this.__eventTarget.on(eventType, callback);
     }
 
-    onStop(callback: () => void) {
-        this.__eventTarget.on('stop', callback);
-    }
-
-    onBack(callback: () => void) {
-        this.__eventTarget.on('back', callback);
-    }
-
-    onTreat(callback: () => void) {
-        this.__eventTarget.on('treat', callback);
-    }
-
-    onBattleStart(callback: () => void) {
-        this.__eventTarget.on('battleStart', callback);
-    }
-
-    battleStart() {
-        this.__eventTarget.emit('battleStart');
-    }
-
-    onHorner(callback: () => void) {
-        this.__eventTarget.on('horner', callback);
-    }
-
-    horner() {
-        this.__eventTarget.emit('horner');
-    }
-
-    assension() {
-        this.__eventTarget.emit('assension');
-    }
-
-    onAssension(callback: () => void) {
-        this.__eventTarget.on('assension', callback);
-    }
-
-    onDead(callback: () => void) {
-        this.__eventTarget.on('dead', () => {
-            callback();
-        });
-    }
-
-    onLeave(callback: () => void) {
-        this.__eventTarget.on('leave', () => {
-            callback();
-        });
-    }
-
-    leave() {
-        this.__eventTarget.emit('leave');
-    }
-
-    dead() {
-        this.__eventTarget.emit('dead');
+    emit(eventType: MemeEvent, data?: any) {
+        this.__eventTarget.emit(eventType, data);
     }
 
     json() {
@@ -110,21 +72,5 @@ export class MemeData {
     worker() {
         this.growth = WORKER_GROWTH;
         this.state = MemeState.WORKER;
-    }
-
-    go() {
-        this.__eventTarget.emit('go');
-    }
-
-    stop() {
-        this.__eventTarget.emit('stop');
-    }
-
-    back() {
-        this.__eventTarget.emit('back');
-    }
-
-    treat() {
-        this.__eventTarget.emit('treat');
     }
 }

@@ -1,13 +1,15 @@
 import { _decorator, Component, Node, Vec3, math, log, Tween, Button, tween, SpriteFrame, Sprite } from 'cc';
 const { ccclass, property } = _decorator;
 import { Manager } from './Manager';
-import { MemeData } from './logic/MemeData';
+import { MemeData, MemeEvent } from './logic/MemeData';
 import { MemeState } from './logic/MemeState';
 import { TreatmentManager } from './TreatmentManager';
 import {EatButton} from './ui/EatButton';
 import { WolfEvent } from './WolfEvent';
 import { BubbleManager } from './BubbleManager';
 import { EventType } from './logic/CommandType';
+import { FoodParticle } from './FoodParticle';
+import { FoodType } from './logic/FoodType';
 
 @ccclass('Meme')
 export class Meme extends Component {
@@ -83,16 +85,29 @@ export class Meme extends Component {
             this.stopWork = false;
         });
         this.button.clickEvents.push(this.createHandler());
-        this.__data.onBattleStart(()=> {
+        this.__data.on(MemeEvent.BATTLE_START, ()=> {
             this.stopWork = true;
             tween(this.node)
                 .to(0.2, new Vec3(-50, -90, 0))
                 .start();
         })
-        this.__data.onHorner(() => {
+        this.__data.on(MemeEvent.HORNER, () => {
             WolfEvent.dropCult(this.node);
         });
-        this.__data.onAssension(async () => {
+        this.__data.on(MemeEvent.FIND_FOOD, async (food: {type: FoodType, amount: number}) => {
+            for (let i = 0; i < food.amount; i++) {
+                await this.wait(100);
+                (async () => {
+                    await FoodParticle.findFood(this.node, food.type);
+                    Manager.addFood(food.type, 1);
+                })();
+            }
+        });
+        this.__data.on(MemeEvent.EAT, async (foodType: FoodType) => {
+            log("EAT EVENT: " + foodType);
+            await FoodParticle.getFood(this.node, foodType);
+        });
+        this.__data.on(MemeEvent.ASSENSION, async () => {
             this.isMigration = true;
             this.wing.active = true;
             this.memeSprite.spriteFrame = this.spriteFrames[6]; // 進化後のスプライトに変更
@@ -105,7 +120,7 @@ export class Meme extends Component {
             });
             this.node.destroy();
         });
-        this.__data.onLeave(async (hopCount: number = 3) => {
+        this.__data.on(MemeEvent.LEAVE, async (hopCount: number = 3) => {
             const node = this.node;
             if (!node || !node.isValid) return;
             this.stopWork = true;
@@ -138,13 +153,17 @@ export class Meme extends Component {
             // --- 3. 破棄 ---
             if (node.isValid) node.destroy();
         });
-        this.__data.onDead(async () => {
+        this.__data.on(MemeEvent.DEAD, async () => {
             await this.dead();
             this.node.destroy();
         });
         if (this.__data.growth == 0) {
             BubbleManager.bubbling(this.node.worldPosition, 5, 2, "up");
         }
+    }
+
+    wait(ms: number) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     async dead() {
@@ -179,10 +198,10 @@ export class Meme extends Component {
 
     load(data: MemeData) {
         this.__data = data;
-        this.__data.onGo(() => this.__go());
-        this.__data.onStop(() => this.__stop());
-        this.__data.onBack(() => this.__back());
-        this.__data.onTreat(() => this.__treat());
+        this.__data.on(MemeEvent.GO, () => this.__go());
+        this.__data.on(MemeEvent.STOP, () => this.__stop());
+        this.__data.on(MemeEvent.BACK, () => this.__back());
+        this.__data.on(MemeEvent.TREAT, () => this.__treat());
     }
 
     start() {

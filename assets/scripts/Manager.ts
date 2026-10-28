@@ -2,10 +2,11 @@ import { _decorator, EventTarget, log } from 'cc';
 const { ccclass, property } = _decorator;
 import { GameData } from './logic/GameData';
 import { TerrainData } from './logic/TerrainData';
-import { MemeData , MAX_HUNGER, DANGER_HUNGER} from './logic/MemeData';
+import { MemeData , MAX_HUNGER, DANGER_HUNGER, MemeEvent} from './logic/MemeData';
 import { MemeState } from './logic/MemeState';
 import { BuildingType } from './logic/BuildingType';
 import { EventType } from './logic/CommandType';
+import { FoodType } from './logic/FoodType';
 
 export class Manager {
     private static __data: GameData = new GameData();
@@ -20,24 +21,24 @@ export class Manager {
     }
 
     public static canGo(): boolean {
-        return !this.isBuilding && this.__data.food >= this.__data.steps + 10;
+        return !this.isBuilding && this.__data.foodCount >= this.__data.steps + 10;
     }
 
     public static go() {
         this.__eventTarget.emit(EventType.COMMAND);
         this.__data.steps += 1;
-        this.__data.food -= this.__data.steps + 10;
+        this.__data.useFood(this.__data.steps + 10);
         if (this.__data.steps >= this.__data.terrain.length) {
             this.__data.terrain.push(new TerrainData());
         }
         for (let meme of this.__activeMemes) {
-            meme.go();
+            meme.emit(MemeEvent.GO);
         }
     }
 
     public static stop() {
         for (let meme of this.__activeMemes) {
-            meme.stop();
+            meme.emit(MemeEvent.STOP);
         }
     }
 
@@ -48,7 +49,7 @@ export class Manager {
         }
         this.__data.steps = this.__data.steps - 1;
         for (let meme of this.__activeMemes) {
-            meme.back();
+            meme.emit(MemeEvent.BACK);
         }
     }
 
@@ -59,7 +60,7 @@ export class Manager {
     }
 
     public static get food(): number {
-        return this.__data.food;
+        return this.__data.foodCount;
     }
 
     public static get cult(): number {
@@ -74,32 +75,42 @@ export class Manager {
         return this.__data.day;
     }
 
-    public static addFood() {
+    public static addFood(type: FoodType, amount: number) {
+        this.__data.addFood(type, amount);
+    }
+
+    public static findFood() {
         this.__eventTarget.emit(EventType.COMMAND);
         const memeCount = this.memesCount;
         const workP = Math.sqrt(this.__data.cult*10)/memeCount;
-        for (let i = 0; i < this.workersCount; i++) {
+        const findedFood = [];
+        for (let worker of this.__workers) {
             if (Math.random() < workP) {
-                this.__data.food += 2;
+                if (this.terrain.building === BuildingType.FARM) {
+                    findedFood.push({type: FoodType.CABBAGE, amount: 3, finder: worker});
+                } else {
+                    findedFood.push({type: FoodType.BANANA, amount: 2, finder: worker});
+                }
             }
         }
+        return findedFood;
     }
 
     public static killWolf() {
-        this.__data.food += 10;
+        this.__data.addFood(FoodType.MEAT, 10);
     }
 
     public static assension() {
         for (let meme of this.__activeMemes) {
-            meme.assension();
+            meme.emit(MemeEvent.ASSENSION);
         }
     }
 
     public static harnessMeme(meme: MemeData) {
         this.__data.cult += 1;
         meme.state = MemeState.DEATH;
-        meme.horner();
-        meme.dead();
+        meme.emit(MemeEvent.HORNER);
+        meme.emit(MemeEvent.DEAD);
     }
 
     public static clean() {
@@ -109,7 +120,7 @@ export class Manager {
     }
 
     public static addRottenFood(amount: number) {
-        this.__data.rottenFood += amount;
+        this.__data.addFood(FoodType.ROTTEN, amount);
     }
 
     public static get workersCount(): number {
@@ -170,7 +181,7 @@ export class Manager {
         // 余剰の食料を消費し、はたらくめぇめぇ一定数を一時的に労働不能にすることでおまつり（繁殖）できる※2
         // 余剰食糧の量に応じて繁殖に参加するめぇめぇの数が増えるmin(はたらくめぇめぇ数,（余剰食糧 - 群れの絶対数))/2頭)。こまめに繁殖するより一括で繁殖させた方が効率が良い。
         // 繁殖に参加するめぇめぇは3-5ターン（繁殖コマンドを使用した土地依存）労働不能状態になり、ターン経過後参加しためぇめぇ数/2*1.3の子供が生まれる。親は労働不能状態が解除される。
-        let festMemeCount = Math.min(this.workersCount, Math.floor((this.__data.food - this.memesCount)/2));
+        let festMemeCount = Math.min(this.workersCount, Math.floor((this.__data.foodCount - this.memesCount)/2));
         const festPeriod = 3 + Math.floor(Math.random()*3);
         log(`祭りに参加するめぇめぇ数:${festMemeCount}、祭り期間:${festPeriod}ターン`);
         const sortedMemes =  this.__workers.sort((memeA, memeB) => memeA.priority - memeB.priority);
@@ -191,7 +202,7 @@ export class Manager {
             this.addRottenFood(10);
         }
         meme.state = MemeState.DEATH;
-        meme.dead();
+        meme.emit(MemeEvent.DEAD);
     }
 
     public static devineSord(wolfnum: number) {
@@ -258,7 +269,7 @@ export class Manager {
     }
 
     public static get canFestival(): boolean {
-        return Math.min(this.workersCount, Math.floor((this.__data.food - this.memesCount)/2)) >= 2;
+        return Math.min(this.workersCount, Math.floor((this.__data.foodCount - this.memesCount)/2)) >= 2;
     }
 
     public static treat() {
@@ -269,7 +280,7 @@ export class Manager {
         this.__data.cult -= Math.max(0, scrapieMemes.length - 3);
         scrapieMemes.map(m => {
             m.state = MemeState.WORKER
-            m.treat();
+            m.emit(MemeEvent.TREAT);
         });
     }
 
@@ -308,32 +319,31 @@ export class Manager {
     private static __eat() {
         this.__resetPriority();
         const sortedMemes =  this.__activeMemes.sort((memeA, memeB) => memeA.priority - memeB.priority);
-        for (let meme of sortedMemes) {
+        const eatedFood = this.__data.useFood(sortedMemes.length);
+        for (let i = 0; i < sortedMemes.length; i++) {
+            const meme = sortedMemes[i];
+            const food = eatedFood[i];
             // 食料がない場合は空腹度を減らす
-            if (this.__data.food + this.__data.rottenFood <= 0) {
+            if (!food) {
                 meme.hunger = Math.max(0, meme.hunger - 1);
                 continue;
             }
             // 食料がある場合は空腹度を回復させる
             meme.hunger = Math.min(MAX_HUNGER, meme.hunger + 1);
-            // 汚染された食料を食べる確率を計算する
-            const isRotten = Math.random() < this.__data.rottenFood / (this.__data.food + this.__data.rottenFood);
 
             // 汚染された食料を食べた場合はスクレイピーに感染する
-            if (isRotten) {
+            if (food === FoodType.ROTTEN) {
                 meme.state = MemeState.SCRAPIE;
-                this.__data.rottenFood -= 1;
-            } else {
-                this.__data.food -= 1;
             }
         }
+        this.__eventTarget.emit(EventType.EAT, sortedMemes.map((meme, index) => ({meme: meme, food: eatedFood[index]})));
     }
 
     private static __checkDeath() {
         for (let meme of this.__data.memes) {
             if (meme.hunger/DANGER_HUNGER < Math.random()) {
                 meme.state = MemeState.DEATH;
-                meme.dead();
+                meme.emit(MemeEvent.DEAD);
             }
         }
     }
@@ -354,7 +364,7 @@ export class Manager {
             const leave = Math.random() > notLeaveP;
             if (leave) {
                 meme.state = MemeState.LEAVE;
-                meme.leave();
+                meme.emit(MemeEvent.LEAVE);
             }
         }
     }
@@ -477,7 +487,7 @@ export class Manager {
     }
 
     public static nextDay() {
-        this.__data.food += 2;
+        this.__data.addFood(FoodType.BANANA, 2);
         this.__data.day += 1;
         this.__eat();
         this.__checkDeath();
