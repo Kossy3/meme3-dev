@@ -25,7 +25,7 @@ export class FoodParticle extends Component {
         Manager.on(EventType.EAT, (eatedFoods: {meme: MemeData, food: FoodType}[]) => {
             log("EAT EVENT: " + eatedFoods.length);
             for (const {meme, food} of eatedFoods) {
-                if (food) {
+                if (food !== undefined) {
                     meme.emit(MemeEvent.EAT, food);
                 }
             }

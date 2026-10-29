@@ -2,6 +2,7 @@ import { _decorator, Component, Node, Button, log } from 'cc';
 const { ccclass, property } = _decorator;
 import { Manager } from '../Manager';
 import { AnimationAsync } from '../utils/AnimationAsync';
+import {BuildingType} from '../logic/BuildingType';
 
 @ccclass('FestivalButton')
 export class FestivalButton extends Component {
@@ -9,6 +10,8 @@ export class FestivalButton extends Component {
     private animation: AnimationAsync;
     @property(Button)
     private button: Button;
+    @property(Node)
+    private homeNode: Node;
 
     private __available: boolean = false;
 
@@ -34,6 +37,8 @@ export class FestivalButton extends Component {
         const beforeState = this.__available;
         //（余剰食糧 - 群れの絶対数))/2頭 >= 2
         const afterState = Manager.canFestival;
+
+        this.homeNode.active = Manager.terrain.building === BuildingType.HOME;
         if (beforeState !== afterState) {
             this.__available = afterState;
             if (afterState) {

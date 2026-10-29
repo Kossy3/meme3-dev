@@ -24,43 +24,43 @@ export class MigrateManager extends Component {
     private building2: Building;
 
     async go() {
+        await Promise.all([
+            this.移動看板.playAsync("看板引っ込み"), 
+            this.通常操作看板.playAsync("看板引っ込み")
+        ]);
         this.building.updateBuilding(Manager.terrain);
         this.building.updateDirt(Manager.terrain.dirts);
         Manager.go();
         this.building2.updateBuilding(Manager.terrain);
         this.building2.updateDirt(Manager.terrain.dirts);
-        await Promise.all([
-            this.移動看板.playAsync("看板引っ込み"), 
-            this.通常操作看板.playAsync("看板引っ込み")
-        ]);
         await this.animation.playAsync("すすむ");
+        this.building.updateBuilding(Manager.terrain);
+        this.building.updateDirt(Manager.terrain.dirts)
         await Promise.all([
             this.移動看板.playAsync("看板出現"), 
             this.通常操作看板.playAsync("看板出現")
         ]);
-        this.building.updateBuilding(Manager.terrain);
-        this.building.updateDirt(Manager.terrain.dirts)
         Manager.stop();
         Manager.nextDay();
     }
 
     async back() {
+        await Promise.all([
+            this.移動看板.playAsync("看板引っ込み"), 
+            this.通常操作看板.playAsync("看板引っ込み")
+        ]);
         this.building2.updateBuilding(Manager.terrain);
         this.building2.updateDirt(Manager.terrain.dirts)
         Manager.back();
         this.building.updateBuilding(Manager.terrain);
         this.building.updateDirt(Manager.terrain.dirts)
-        await Promise.all([
-            this.移動看板.playAsync("看板引っ込み"), 
-            this.通常操作看板.playAsync("看板引っ込み")
-        ]);
         await this.animation.playAsync("もどる");
+        this.building.updateBuilding(Manager.terrain);
+        this.building.updateDirt(Manager.terrain.dirts)
         await Promise.all([
             this.移動看板.playAsync("看板出現"), 
             this.通常操作看板.playAsync("看板出現")
         ]);
-        this.building.updateBuilding(Manager.terrain);
-        this.building.updateDirt(Manager.terrain.dirts)
         Manager.stop();
         Manager.nextDay();
     }
