@@ -28,6 +28,8 @@ export class WolfEvent extends Component {
 
     @property(Node)
     private punchNode: Node;
+    @property(Node)
+    private towerTop: Node;
 
     private wolfpos: Vec3[] = [
         new Vec3(100, -50, 0),
@@ -54,7 +56,7 @@ export class WolfEvent extends Component {
         Manager.on(EventType.BATTLE, this.battle.bind(this));
         Manager.on(EventType.BUILD_TOWER, async (reward: number) => {
             const effect = async(reward: number) => {
-                await WolfEvent.dropCult(this.node);
+                await WolfEvent.dropCult(this.towerTop);
                 Manager.addCult(reward);
             }
             for (let i = 0; i < Math.min(10, reward); i++) {
