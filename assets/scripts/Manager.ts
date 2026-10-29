@@ -427,7 +427,8 @@ export class Manager {
     }  
 
     private static __growth() {
-        this.__activeMemes.map(m => m.growth ++);
+        const growthPoint = this.terrain.building === BuildingType.HOME ? 2 : 1;
+        this.__activeMemes.map(m => m.growth += growthPoint);
     }
 
     private static __polute(number: number = 1) {
