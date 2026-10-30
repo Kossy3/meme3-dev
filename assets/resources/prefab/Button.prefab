@@ -241,8 +241,8 @@
     },
     "_lscale": {
       "__type__": "cc.Vec3",
-      "x": 1,
-      "y": 1,
+      "x": 0.2,
+      "y": 0.2,
       "z": 1
     },
     "_mobility": 0,
@@ -269,8 +269,8 @@
     },
     "_contentSize": {
       "__type__": "cc.Size",
-      "width": 100,
-      "height": 46
+      "width": 500,
+      "height": 200
     },
     "_anchorPoint": {
       "__type__": "cc.Vec2",
@@ -308,10 +308,10 @@
     "_string": "ぼたん",
     "_horizontalAlign": 1,
     "_verticalAlign": 1,
-    "_actualFontSize": 20,
-    "_fontSize": 20,
+    "_actualFontSize": 100,
+    "_fontSize": 100,
     "_fontFamily": "kiwi maru",
-    "_lineHeight": 40.1,
+    "_lineHeight": 100,
     "_overflow": 1,
     "_enableWrapText": false,
     "_font": {
@@ -324,7 +324,7 @@
     "_isBold": false,
     "_isUnderline": false,
     "_underlineHeight": 2,
-    "_cacheMode": 2,
+    "_cacheMode": 1,
     "_enableOutline": false,
     "_outlineColor": {
       "__type__": "cc.Color",

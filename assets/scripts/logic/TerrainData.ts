@@ -76,5 +76,6 @@ export class TerrainData {
         this.type = json.type;
         this.building = json.building;
         this.addDirt(json.dirt);
+        return this;
     }
 }

@@ -2,7 +2,7 @@ import { MemeState } from "./MemeState";
 export const MAX_HUNGER = 5;
 export const DANGER_HUNGER = 3;
 export const WORKER_GROWTH = 5;
-import { EventTarget, Vec3 } from "cc";
+import { EventTarget, Vec3, log } from "cc";
 
 export enum MemeEvent {
     GO,
@@ -61,6 +61,7 @@ export class MemeData {
         this.state = json.state;
         this.festLimit = json.fest;
         this.buildLimit = json.build;
+        return this;
     }
     resetPriority() {
         this.__priority = Math.random();

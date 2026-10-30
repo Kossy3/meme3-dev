@@ -54,6 +54,7 @@ export class Manager {
     }
 
     public static load(json?: string) {
+        log(json);
         if (json) {
             this.__data.load(json);
         }

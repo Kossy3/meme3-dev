@@ -13,7 +13,7 @@ export class LoadAssets extends Component {
             await this.loadFolder('prefab', Prefab);
 
             // ロード完了したらゲーム本編へ遷移
-            director.loadScene('scene');
+            director.loadScene('title');
         } catch (err) {
             console.error('アセットのロードに失敗しました', err);
         }

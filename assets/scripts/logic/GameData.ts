@@ -3,6 +3,7 @@ import { TerrainData } from "./TerrainData";
 import { MemeState } from "./MemeState";
 import { BuildingType } from "./BuildingType";
 import { FoodType } from "./FoodType";
+import { log } from "cc";
 
 export class GameData {
     day: number = 0;

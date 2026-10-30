@@ -73,12 +73,12 @@ export class Building extends Component {
     async cleanupDirt(dirts: DirtData[], animate: boolean = true) {
         await Promise.all(dirts.map(async (data) => {
             const dirtNode = this.__activeDirts.get(data);
+            this.__activeDirts.delete(data);
             if (dirtNode) {
                 if (animate) {
                     await dirtNode.getComponent(Dirt).cleanupAnimate();
                 }
                 this.__dirtsNodePool.put(dirtNode);
-                this.__activeDirts.delete(data);
             }
         }));
     }
