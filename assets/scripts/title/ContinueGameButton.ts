@@ -1,6 +1,7 @@
 import { _decorator, Component, Node, Button, log, sys, director } from 'cc';
 const { ccclass, property } = _decorator;
 import { GameData } from '../logic/GameData';
+import { Manager } from '../Manager';
 
 @ccclass('ContinueGameButton')
 export class ContinueGameButton extends Component {
@@ -20,6 +21,7 @@ export class ContinueGameButton extends Component {
     }
 
     onClick() {
+        Manager.resetEvents();
         director.loadScene('scene');
     }
 }

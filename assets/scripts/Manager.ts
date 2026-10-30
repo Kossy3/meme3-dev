@@ -1,4 +1,4 @@
-import { _decorator, EventTarget, log } from 'cc';
+import { _decorator, EventTarget, log, sys } from 'cc';
 const { ccclass, property } = _decorator;
 import { GameData } from './logic/GameData';
 import { TerrainData } from './logic/TerrainData';
@@ -8,12 +8,33 @@ import { BuildingType } from './logic/BuildingType';
 import { EventType } from './logic/CommandType';
 import { FoodType } from './logic/FoodType';
 
+const SAVE_KEY = 'gameData';
+
 export class Manager {
     private static __data: GameData = new GameData();
     private static __eventTarget: EventTarget = new EventTarget();
+    public static save() {
+        sys.localStorage.setItem(SAVE_KEY, this.__data.json());
+    }
+
+    public static clearSave() {
+        sys.localStorage.removeItem(SAVE_KEY);
+    }
+
+    public static hasSave(): boolean {
+        return !!sys.localStorage.getItem(SAVE_KEY);
+    }
+
+    public static resetEvents() {
+        this.__eventTarget = new EventTarget();
+    }
 
     public static on(event: EventType, callback: any) {
         this.__eventTarget.on(event, callback);
+    }
+
+    public static get isAscended(): boolean {
+        return this.__data.magic;   // ※下の注意参照
     }
 
     public static finEvent() {
@@ -357,7 +378,7 @@ export class Manager {
     }
 
     private static __checkMagic() {
-        if (this.__data.steps >= 100) {
+        if (this.__data.steps >= 3) {
             this.__data.magic = true;
         }
         if (this.__data.cult >= 1000) {
@@ -492,6 +513,7 @@ export class Manager {
     }
 
     public static completeNextDay() {
+        this.save(); 
         this.__eventTarget.emit(EventType.NEXT_DAY);
         this.__checkEvent();
     }

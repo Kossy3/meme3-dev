@@ -85,7 +85,7 @@ console.log('getDocs', typeof getDocs);
             const data = d.data();
             return {
                 uid: d.id,
-                name: data.name ?? '???',
+                name: data.name,
                 steps: data.steps ?? 0,
                 day: data.day ?? 0,
                 assention: !!data.assention,

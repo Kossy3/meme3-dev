@@ -8,13 +8,14 @@ export class Load extends Component {
     @property(MemeFactory)
     private memeFactory: MemeFactory;
 
-    start() {
+    onLoad() {
         const gameData = sys.localStorage.getItem('gameData');
-
         if (gameData) {
             Manager.load(gameData);
         }
+    }
 
+    start() {
         Manager.memes.forEach((m) => {
             this.memeFactory.createMeme(m);        
         });

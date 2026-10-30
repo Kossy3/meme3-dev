@@ -1,6 +1,8 @@
 import { _decorator, Component, Node, Button, log, sys, director } from 'cc';
 const { ccclass, property } = _decorator;
 import { GameData } from '../logic/GameData';
+import { Manager } from '../Manager';
+import { syncRanking } from '../utils/Ranking';
 
 @ccclass('NewGameButton')
 export class NewGameButton extends Component {
@@ -20,7 +22,9 @@ export class NewGameButton extends Component {
     }
 
     onClick() {
+        Manager.resetEvents();
         sys.localStorage.setItem('gameData', new GameData().json());
+        syncRanking();
         director.loadScene('scene');
     }
 }

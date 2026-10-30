@@ -23,7 +23,10 @@ export class RankItem extends Component {
         }
     }
 
-    trimName(name: string): string {
+    trimName(name: string | null): string {
+        if (!name) {
+            return 'ななしのめぇめぇ';
+        }
         const maxLength = 8;
         if (name.length > maxLength) {
             return name.substring(0, maxLength) + '...';

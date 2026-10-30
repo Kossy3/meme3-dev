@@ -26,6 +26,7 @@ export class Building extends Component {
     start() {
         this.dirtPrefab = resources.get('prefab/汚れ', Prefab);
         this.updateBuilding(Manager.terrain);
+        this.updateDirt(Manager.terrain.dirts);
         Manager.on(EventType.NEXT_DAY, () => {
             this.updateBuilding(Manager.terrain);
             if (Manager.isBuilding) {

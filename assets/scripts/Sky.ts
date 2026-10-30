@@ -3,6 +3,7 @@ const { property, ccclass } = _decorator;
 import { AnimationAsync } from './utils/AnimationAsync';
 import { Manager } from './Manager';
 import { EventType } from './logic/CommandType';
+import { syncRanking } from './utils/Ranking';
 
 @ccclass('Sky')
 export class Sky extends Component {
@@ -13,6 +14,7 @@ export class Sky extends Component {
         Manager.on(EventType.NEXT_DAY_EFFECT, async () => {
             await this.animation.playAsync('つぎのひ');
             Manager.completeNextDay();
+            syncRanking();               // await しない（演出を止めない）
         });
     }
 }

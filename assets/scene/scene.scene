@@ -4305,8 +4305,8 @@
     ],
     "value": {
       "__type__": "cc.Size",
-      "width": 94.064,
-      "height": 32.7
+      "width": 500,
+      "height": 200
     }
   },
   {
@@ -4782,8 +4782,8 @@
     ],
     "value": {
       "__type__": "cc.Size",
-      "width": 94.064,
-      "height": 32.8
+      "width": 500,
+      "height": 200
     }
   },
   {
@@ -10305,7 +10305,7 @@
     "propertyPath": [
       "_lineHeight"
     ],
-    "value": 18.2
+    "value": 100
   },
   {
     "__type__": "CCPropertyOverrideInfo",
@@ -12587,8 +12587,8 @@
     ],
     "value": {
       "__type__": "cc.Vec3",
-      "x": 1,
-      "y": 1,
+      "x": 0.2,
+      "y": 0.2,
       "z": 1
     }
   },

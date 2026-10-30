@@ -58,7 +58,8 @@ export class GameData {
             cult: this.cult,
             building: this.building,
             buildingCost: this.buildingCost,
-            steps: this.steps
+            steps: this.steps,
+            magic: this.magic,
         });
     }
 
@@ -72,5 +73,6 @@ export class GameData {
         this.building = data.building;
         this.buildingCost = data.buildingCost;
         this.steps = data.steps;
+        this.magic = data.magic;
     }
 }
