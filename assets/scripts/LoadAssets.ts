@@ -1,4 +1,4 @@
-import { _decorator, Component, resources, Prefab, director, ProgressBar } from 'cc';
+import { _decorator, Component, resources, Prefab, director, ProgressBar, AudioClip } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('LoadAssets')
@@ -10,7 +10,10 @@ export class LoadAssets extends Component {
     async onLoad() {
         try {
             // resources/prefab フォルダ以下の全Prefabを一括で事前ロード
-            await this.loadFolder('prefab', Prefab);
+            await Promise.all([
+                this.loadFolder('prefab', Prefab),
+                this.loadFolder('sound', AudioClip),
+            ]);
 
             // ロード完了したらゲーム本編へ遷移
             director.loadScene('title');

@@ -1,7 +1,8 @@
-import { _decorator, Component, Node, Button, log, EventTarget } from 'cc';
+import { _decorator, Component, Node, Button, log, EventTarget, AudioSource } from 'cc';
 const { ccclass, property } = _decorator;
 import { Manager } from '../Manager';
 import { AnimationAsync } from '../utils/AnimationAsync';
+import { AudioManager } from '../AudioManager';
 
 @ccclass('EatButton')
 export class EatButton extends Component {
@@ -10,6 +11,7 @@ export class EatButton extends Component {
     private button: Button;
     @property(AnimationAsync)
     private animation: AnimationAsync;
+
     private eventTarget: EventTarget = new EventTarget();
 
     private __available: boolean = false;
@@ -19,6 +21,7 @@ export class EatButton extends Component {
     }
 
     onClick(callback: (event: any) => void) {
+        AudioManager.play('弓矢が刺さる');
         this.eventTarget.on('select', callback);
     }
 

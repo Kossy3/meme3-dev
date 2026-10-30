@@ -3,6 +3,7 @@ const { ccclass, property } = _decorator;
 import { Manager } from '../Manager';
 import { AnimationAsync } from '../utils/AnimationAsync';
 import { EventType } from '../logic/CommandType';
+import { AudioManager } from '../AudioManager';
 
 @ccclass('CleanButton')
 export class CleanButton extends Component {
@@ -31,6 +32,7 @@ export class CleanButton extends Component {
     async clean() {
         this.wiper.active = true;
         this.wiper.setPosition(700, 0, 0);
+        AudioManager.play('ほうきで掃く1');
         await new Promise<void>((resolve) => {
             tween(this.wiper)
                 .to(2, { position: new Vec3(-700, 0, 0) })

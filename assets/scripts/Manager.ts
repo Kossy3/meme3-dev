@@ -224,9 +224,10 @@ export class Manager {
     public static killMeme(meme: MemeData) {
         if (meme.state === MemeState.SCRAPIE) {
             this.addRottenFood(10);
-            this.__polute(5);
         } else {
-            this.addRottenFood(10);
+            this.addFood(FoodType.MEAT, 10);
+            this.addCult(1);
+            this.addRottenFood(1);
         }
         meme.state = MemeState.DEATH;
         meme.emit(MemeEvent.DEAD);
@@ -378,7 +379,7 @@ export class Manager {
     }
 
     private static __checkMagic() {
-        if (this.__data.steps >= 3) {
+        if (this.__data.steps >= 100) {
             this.__data.magic = true;
         }
         if (this.__data.cult >= 1000) {
